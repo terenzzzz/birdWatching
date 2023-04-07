@@ -17,7 +17,7 @@ exports.createSighting = function (req,res) {
             var dbo = db.db("birdWatching");
             var mySighting = new Sighting({
                 description: "Testing Description",
-                dateTime: "2023-03-24 12:17:00",
+                dateTime: new Date(),
                 nickName: "terenzzzz",
                 latitude: 53,
                 longitude: 42,
