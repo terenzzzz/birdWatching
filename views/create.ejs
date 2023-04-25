@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
 </head>
 <body class="bg-light bg-gradient">
@@ -15,34 +16,46 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-sm-6">
-        <form action="" method="POST">
+        <form id="addForm"  enctype="multipart/form-data" method="POST" action="/create">
           <div class="form-group">
             <label for="identification">Identification:</label>
-            <input type="text" class="form-control" id="identification">
+            <input type="text" class="form-control" id="identification" name="identification" required>
           </div><br/>
           <div class="form-group">
             <label for="name">Nickname:</label>
-            <input type="text" class="form-control" id="nickname">
+            <input type="text" class="form-control" id="nickName" name="nickName" required>
           </div><br/>
           <div class="form-group">
             <label for="description">Description:</label>
-            <textarea class="form-control" id="description" rows="3"></textarea>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+          </div><br/>
+          <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="text" class="form-control" id="dateTime" name="dateTime" placeholder="DD-MM-YYYY" required>
+            <div class="invalid-feedback">
+              Please enter a valid date format of DD-MM-YYYY.
+            </div>
           </div><br/>
           <div class="form-group">
             <label for="image">Upload a photo:</label>
-            <input type="file" class="form-control-file" id="image">
+            <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
           </div><br/><br/>
+          <div class="form-group">
+            <label for="location">Mark the location where the sighting was spotted:</label>
+            <div id="map"  style="height: 400px;width: 600px;  margin: auto;"></div>
+          </div><br/>
+          <input type="hidden" id="latitude" name="latitude" placeholder="latitude">
+          <input type="hidden" id="longitude" name="longitude" placeholder="longitude">
           <button type="submit" class="btn btn-primary d-flex align-items-center mx-auto mb-5">Create</button>
+
         </form>
       </div>
     </div>
   </div>
-  <div class="btn-group" role="group" aria-label="Basic example">
-    <button class="btn btn-primary" id="addToIDB">addToIDB</button>
-    <button class="btn btn-primary" id="addToMongoDB">addToMongoDB</button>
-  </div>
-  <!--    For Testing -->
+  <div id="results" style="margin-top:30px"></div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="/javascripts/create.js"></script>
-  <script src="/javascripts/indexDb.js"></script>
+  <script src="/javascripts/add.js"></script>
 </body>
 </html>

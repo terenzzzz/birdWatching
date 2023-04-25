@@ -1,4 +1,4 @@
-const Sighting = require('../models/sighting')
+const Sighting = require('../models/sightings')
 
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
@@ -16,12 +16,12 @@ exports.createSighting = function (req,res) {
             console.log('Connected successfully to server');
             var dbo = db.db("birdWatching");
             var mySighting = new Sighting({
-                description: "Testing Description",
-                dateTime: new Date(),
-                nickName: "terenzzzz",
-                latitude: 53,
-                longitude: 42,
                 identification: "Unknown",
+                nickName: "terenzzzz",
+                description: "Testing Description",
+                dateTime: "01-12-2000",
+                latitude: "53",
+                longitude: "42",
                 photo: "testing"
             });
             dbo.collection("sighting").insertOne(mySighting, function(err, result) {
