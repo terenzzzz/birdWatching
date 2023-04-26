@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-const createController = require('../controller/create')
 var bodyParser= require("body-parser");
 var sighting = require('../controller/sightings');
+var index = require('../controller/index');
 var multer = require('multer');
 
 // storage defines the storage options to be used for file upload with multer
@@ -27,12 +27,15 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/index', function(req, res, next) {
-    res.render('index', { successful_create: false});
+    index.getAll(function(err, sightings) {
+        if (err) {console.error(err)}
+        else {
+            res.render('index', { successful_create: false, sightings:sightings});
+        }
+    })
+
 });
 
-// router.get('/addToIDB', function(req, res, next) {
-//
-// });
 
 router.get('/create', function(req, res, next) {
     res.render('create');
@@ -40,7 +43,8 @@ router.get('/create', function(req, res, next) {
 router.post('/create', upload.single('image'), function(req, res) {
     console.log(req);
     sighting.create(req,res);
-    res.render('index', { successful_create: true});
+    // res.render('index', { successful_create: true});
+    res.redirect('/index');
 });
 router.get('/bird', function(req, res, next) {
     res.render('bird');

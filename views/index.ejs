@@ -54,86 +54,28 @@
         </ul>
       </div>
     </div>
-    <!--    First Card-->
-    <div class="card mt-4">
-      <div class="card-body row">
-        <div class="col-2">
-          <img src="upload/BlueTit.png" class="img-thumbnail">
-        </div>
-        <div class="col-8">
-          <h1>Bule Tit</h1>
-          <p>Seen on 03/05/2017</p>
-          <p>Seen at <a href="/">London,England</a></p>
-        </div>
-        <div class="col-2 d-flex justify-content-center align-items-center">
-          <a href="/bird"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
-        </div>
-      </div>
-    </div>
-    <!--    Second Card-->
-    <div class="card mt-4">
-      <div class="card-body row">
-        <div class="col-2">
-          <img src="upload/Robin.png" class="img-thumbnail">
-        </div>
-        <div class="col-8">
-          <h1>Robin</h1>
-          <p>Seen on 03/05/2017</p>
-          <p>Seen at <a href="/">London,England</a></p>
-        </div>
-        <div class="col-2 d-flex justify-content-center align-items-center">
-          <a href="/bird"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
+    <% sightings.forEach(function(sighting) { %>
+      <div class="card mt-4">
+        <div class="card-body row">
+          <div class="col-2">
+            <% console.log(sighting.photo) %>
+            <img src="<%= sighting.photo.replace('public', '') %>" class="img-thumbnail">
+          </div>
+          <div class="col-8">
+            <h1><%= sighting.identification %></h1>
+            <p class="m-0 p-0">Seen on <%= sighting.dateTime %></p>
+<!--            <p class="m-0 p-0">Seen at <%= parseFloat(sighting.latitude).toFixed(2) %>, <%= parseFloat(sighting.longitude).toFixed(2) %></p>-->
+            <p class="m-0 p-0">By <%= sighting.nickName %></p>
+          </div>
+          <div class="col-2 d-flex justify-content-center align-items-center">
+            <a href="/bird"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
+          </div>
         </div>
       </div>
-    </div>
-    <!--    Third Card-->
-    <div class="card mt-4">
-      <div class="card-body row">
-        <div class="col-2">
-          <img src="upload/Kingfisher.png" class="img-thumbnail">
-        </div>
-        <div class="col-8">
-          <h1>Kingfisher</h1>
-          <p>Seen on 03/05/2017</p>
-          <p>Seen at <a href="/">London,England</a></p>
-        </div>
-        <div class="col-2 d-flex justify-content-center align-items-center">
-          <a href="/bird"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
-        </div>
-      </div>
-    </div>
-    <!--    Fourth Card-->
-    <div class="card mt-4">
-      <div class="card-body row">
-        <div class="col-2">
-          <img src="upload/BaldEagle.png" class="img-thumbnail">
-        </div>
-        <div class="col-8">
-          <h1>Bald Eagle</h1>
-          <p>Seen on 03/05/2017</p>
-          <p>Seen at <a href="/">London,England</a></p>
-        </div>
-        <div class="col-2 d-flex justify-content-center align-items-center">
-          <a href="/bird"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
-        </div>
-      </div>
-    </div>
-    <!--    Fifth Card-->
-    <div class="card mt-4">
-      <div class="card-body row">
-        <div class="col-2">
-          <img src="upload/BarnOwl.png" class="img-thumbnail">
-        </div>
-        <div class="col-8">
-          <h1>Barn Owl</h1>
-          <p>Seen on 03/05/2017</p>
-          <p>Seen at <a href="/">London,England</a></p>
-        </div>
-        <div class="col-2 d-flex justify-content-center align-items-center">
-          <a href="/bird"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
-        </div>
-      </div>
-    </div>
+    <% }); %>
+
+
+
     <script src="/javascripts/indexDb.js"></script>
     <script>
       <% if (successful_create) { %>
