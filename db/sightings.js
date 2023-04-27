@@ -1,5 +1,5 @@
 let mongoose = require('mongoose');
-let mongoDB = 'mongodb://localhost:27017/birdWatching';
+let mongoDB = 'mongodb://127.0.0.1:27017/birdWatching';
 mongoose.Promise = global.Promise;
 try {
     connection = mongoose.connect(mongoDB, {
