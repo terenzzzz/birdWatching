@@ -25,57 +25,50 @@
         </div>
       </div>
     </nav>
-    <h1 class="fw-bold mt-5">Life list</h1>
+    <h1 class="fw-bold mt-5">Sighting list</h1>
     <p class="fw-light">Find birds and build your life list</p>
     <!--    Sort Btn-->
     <div class="row">
-      <div class="btn-group col-4">
-        <button type="button" class="btn btn-secondary  dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          By identification
+<!--      <div class="btn-group col-4">-->
+<!--        <button type="button" class="btn btn-secondary">-->
+<!--          Most recently-->
+<!--        </button>-->
+<!--      </div>-->
+      <div class="btn-group col-6">
+        <button type="button" class="btn btn-secondary" onclick="sortByDate(<%=JSON.stringify(sightings)%>)">
+          Most recently
         </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Action</a></li>
-        </ul>
       </div>
-      <div class="btn-group col-4">
-        <button type="button" class="btn btn-secondary  dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          By Data Seen
+      <div class="btn-group col-6">
+        <button type="button" class="btn btn-secondary">
+          Closest
         </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Action</a></li>
-        </ul>
-      </div>
-      <div class="btn-group col-4">
-        <button type="button" class="btn btn-secondary  dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          By Location
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Action</a></li>
-        </ul>
       </div>
     </div>
-    <% sightings.forEach(function(sighting) { %>
-      <div class="card mt-4">
-        <div class="card-body row">
-          <div class="col-2">
-            <% console.log(sighting.photo) %>
-            <img src="<%= sighting.photo.replace('public', '') %>" class="img-thumbnail">
-          </div>
-          <div class="col-8">
-            <h1><%= sighting.identification %></h1>
-            <p class="m-0 p-0">Seen on <%= sighting.dateTime %></p>
-<!--            <p class="m-0 p-0">Seen at <%= parseFloat(sighting.latitude).toFixed(2) %>, <%= parseFloat(sighting.longitude).toFixed(2) %></p>-->
-            <p class="m-0 p-0">By <%= sighting.nickName %></p>
-          </div>
-          <div class="col-2 d-flex justify-content-center align-items-center">
-            <a href="/bird/<%= sighting._id %>"><%= sighting.name %><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
+    <div id="sighting-container">
+      <% sightings.forEach(function(sighting) { %>
+        <div class="card mt-4">
+          <div class="card-body row">
+            <div class="col-2">
+              <img src="<%= sighting.photo.replace('public', '') %>" class="img-thumbnail">
+            </div>
+            <div class="col-8">
+              <h1><%= sighting.identification %></h1>
+              <p class="m-0 p-0">Seen on <%= sighting.dateTime %></p>
+              <!--            <p class="m-0 p-0">Seen at <%= parseFloat(sighting.latitude).toFixed(2) %>, <%= parseFloat(sighting.longitude).toFixed(2) %></p>-->
+              <p class="m-0 p-0">By <%= sighting.nickName %></p>
+            </div>
+            <div class="col-2 d-flex justify-content-center align-items-center">
+              <a href="/bird/<%= sighting._id %>"><%= sighting.name %><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
+            </div>
           </div>
         </div>
-      </div>
-    <% }); %>
+      <% }); %>
+    </div>
 
 
 
+    <script src="/javascripts/index.js"></script>
     <script src="/javascripts/indexDb.js"></script>
     <script>
       <% if (successful_create) { %>

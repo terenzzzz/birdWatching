@@ -35,7 +35,6 @@ router.get('/index', function(req, res, next) {
             res.render('index', { successful_create: false, sightings:sightings});
         }
     })
-
 });
 
 
