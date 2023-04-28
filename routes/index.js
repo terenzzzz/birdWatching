@@ -5,6 +5,7 @@ var sighting = require('../controller/sightings');
 var index = require('../controller/index');
 var multer = require('multer');
 const Sighting = require("../models/sightings");
+const mongoose = require('mongoose');
 
 // storage defines the storage options to be used for file upload with multer
 var storage = multer.diskStorage({
@@ -54,6 +55,35 @@ router.get('/bird/:id', function(req, res) {
         if (err) throw err;
 
         res.render('bird', { sighting: sighting });
+    });
+});
+
+// GET edit sighting page
+router.get('/bird/:id/edit', function(req, res) {
+    let birdId = req.params.id;
+
+    // Retrieve the sighting from the database
+    Sighting.findOne({ _id: birdId }, function(err, sighting) {
+        if (err) throw err;
+
+        // Render the edit sighting page with the current values of the sighting's fields
+        res.render('edit_bird', {sighting: sighting});
+    });
+});
+router.post('/bird/:id/edit', function(req, res) {
+    let birdId = req.params.id;
+    console.log('Bird ID:', birdId);
+    console.log('Request body:', req.body);
+
+    // Find the sighting record in the database and update its fields
+    Sighting.findOneAndUpdate({_id: birdId}, req.body, { new: true }, function(err, sighting) {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error updating sighting');
+        } else {
+            console.log('Sighting updated:', sighting);
+            res.redirect('/bird/' + birdId);
+        }
     });
 });
 
