@@ -4,6 +4,7 @@ var bodyParser= require("body-parser");
 var sighting = require('../controller/sightings');
 var index = require('../controller/index');
 var multer = require('multer');
+const Sighting = require("../models/sightings");
 
 // storage defines the storage options to be used for file upload with multer
 var storage = multer.diskStorage({
@@ -46,9 +47,14 @@ router.post('/create', upload.single('image'), function(req, res) {
     // res.render('index', { successful_create: true});
     res.redirect('/index');
 });
-router.get('/bird', function(req, res, next) {
-    res.render('bird');
-});
+router.get('/bird/:id', function(req, res) {
+    const birdId = req.params.id;
+    console.log(birdId)
+    Sighting.findOne({ _id: birdId }, function(err, sighting) {
+        if (err) throw err;
 
+        res.render('bird', { sighting: sighting });
+    });
+});
 
 module.exports = router;
