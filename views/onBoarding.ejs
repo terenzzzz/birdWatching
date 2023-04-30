@@ -14,15 +14,35 @@
 
         <p class="fw-light fs-1 text-center">Get outside, record their birding experiences, and share them with a fun and inclusive community that can guide your birding journey.</p>
 
+        <form class="row row-cols-lg-auto g-3 align-items-center w-50 mx-auto my-5">
+            <div class="col-12">
+                <label class="visually-hidden" for="inlineFormInputGroupUsername">Nickname</label>
+                <div class="input-group">
+                    <div class="input-group-text">Nick Name</div>
+                    <input type="text" class="form-control-lg" id="inlineFormInputGroupUsername" placeholder="Anonymous">
+                </div>
+            </div>
+        </form>
 
-    <div>
-        <button class="btn btn-primary btn-lg fs-1 d-flex align-items-center mx-auto mb-5"
-                onclick="window.location.href='/index';">
-            <span class="text-center fw-bold">Get Started</span>
-            <i class="bi bi-arrow-right ps-3" style="font-size: 3rem"></i>
-        </button>
-    </div>
 
+        <div>
+            <button class="btn btn-primary btn-lg fs-1 d-flex align-items-center mx-auto mb-5"
+                    onclick="btnClick()">
+                <span class="text-center fw-bold">Get Started</span>
+            </button>
+        </div>
 
+        <script>
+            function btnClick(){
+                var inputField = document.getElementById('inlineFormInputGroupUsername');
+                var inputValue = inputField.value
+                sessionStorage.setItem('nickName', inputValue)
+                if(sessionStorage.getItem('nickName')) {
+                    window.location.href='/index'
+                } else {
+                    alert("Please Field Your Nick Name Before Start.")
+                }
+            }
+        </script>
     </body>
 </html>
