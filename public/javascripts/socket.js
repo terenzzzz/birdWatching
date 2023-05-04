@@ -23,6 +23,7 @@ function init() {
             writeOnHistory('<b>'+userId+'</b>' + ' has joined the chat ');
         }
     });
+
     // called when a message is received
     socket.on('chat', function (room, userId, chatText) {
         let who = userId
@@ -76,7 +77,30 @@ function writeOnHistory(text) {
 function hideLoginInterface(room, userId) {
     document.getElementById('initial_form').style.display = 'none';
     document.getElementById('chat_interface').style.display = 'block';
-    document.getElementById('who_you_are').innerHTML= userId;
-    document.getElementById('in_room').innerHTML= ' '+room;
+}
+
+function sendComment() {
+
+    const nickname =document.getElementById("name").value;
+    const content = document.getElementById("chat_input").value;;
+    const roomId = document.getElementById('roomNo').value;
+    fetch(`/bird/${roomId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({nickname: nickname, content})
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Could not save comment');
+            }
+            return response.json();
+        })
+        .then(savedComment => {
+
+        })
+        .catch(error => {
+            console.error(error);
+            // display an error message to the user
+        });
 }
 

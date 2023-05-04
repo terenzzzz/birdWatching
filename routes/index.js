@@ -5,6 +5,8 @@ var sighting = require('../controller/sightings');
 var index = require('../controller/index');
 var multer = require('multer');
 const Sighting = require("../models/sightings");
+const Comment = require("../models/comments");
+
 const mongoose = require('mongoose');
 
 // storage defines the storage options to be used for file upload with multer
@@ -47,7 +49,23 @@ router.post('/create', upload.single('image'), function(req, res) {
     // res.render('index', { successful_create: true});
     res.redirect('/index');
 });
+
+
+router.get('/bird/:id/comments', (req, res) => {
+    const roomId = req.params.id;
+    Comment.find({roomId}, (err, comments) => {
+        if (err) {
+            console.error(err);
+            console.log("Something")
+
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.json(comments);
+        }
+    });
+});
 router.get('/bird/:id', function(req, res) {
+
     const birdId = req.params.id;
     console.log(birdId)
     Sighting.findOne({ _id: birdId }, function(err, sighting) {
@@ -57,6 +75,23 @@ router.get('/bird/:id', function(req, res) {
     });
 });
 
+router.post('/bird/:id/', (req, res) => {
+    const comment = new Comment({
+        idBird: req.params.id,
+        content: req.body.content,
+        nickname: req.body.nickname
+    });
+    comment.save()
+        .then(savedComment => {
+            res.json(savedComment);
+            console.log("Success")
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: 'Could not save comment' });
+        });
+
+});
 
 // GET edit sighting page
 router.get('/bird/:id/edit', function(req, res) {
