@@ -6,3 +6,18 @@ body {
 a {
   color: #00B7FF;
 }
+#chat_window.chat_window-visible {
+  height: 200px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+#chat_input.chat_input-visible {
+  display: block;
+}
+
+#chat_send.chat_send-visible {
+  display: block;
+}
+

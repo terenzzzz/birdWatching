@@ -57,6 +57,7 @@ router.get('/bird/:id', function(req, res) {
     });
 });
 
+
 // GET edit sighting page
 router.get('/bird/:id/edit', function(req, res) {
     let birdId = req.params.id;
