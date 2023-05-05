@@ -50,28 +50,22 @@ router.post('/create', upload.single('image'), function(req, res) {
     res.redirect('/index');
 });
 
-
-router.get('/bird/:id/comments', (req, res) => {
-    const roomId = req.params.id;
-    Comment.find({roomId}, (err, comments) => {
-        if (err) {
-            console.error(err);
-            console.log("Something")
-
-            res.status(500).send('Internal Server Error');
-        } else {
-            res.json(comments);
-        }
-    });
-});
 router.get('/bird/:id', function(req, res) {
+    const idBird = req.params.id;
+    console.log(idBird);
 
-    const birdId = req.params.id;
-    console.log(birdId)
-    Sighting.findOne({ _id: birdId }, function(err, sighting) {
+    // Retrieve the sighting object based on the birdId parameter
+    Sighting.findOne({ _id: idBird }, function(err, sighting) {
         if (err) throw err;
 
-        res.render('bird', { sighting: sighting });
+        // Retrieve all comments for the bird sighting
+        Comment.find({ idBird: idBird }).sort({ datetime: -1 }).exec(function(err, comments) {
+            console.log(comments);
+            if (err) throw err;
+
+            // Render the bird view with the sighting and comments objects
+            res.render('bird', { sighting: sighting, comments: comments });
+        });
     });
 });
 

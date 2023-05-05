@@ -21,6 +21,7 @@ function init() {
         } else {
             // notifies that someone has joined the room
             writeOnHistory('<b>'+userId+'</b>' + ' has joined the chat ');
+
         }
     });
 
@@ -65,7 +66,14 @@ function writeOnHistory(text) {
     let history = document.getElementById('history');
     let paragraph = document.createElement('p');
     paragraph.innerHTML = text;
-    history.appendChild(paragraph);
+
+    let firstChild = history.firstChild;
+    if (firstChild) {
+        history.insertBefore(paragraph, firstChild);
+    } else {
+        history.appendChild(paragraph);
+    }
+
     document.getElementById('chat_input').value = '';
 }
 
