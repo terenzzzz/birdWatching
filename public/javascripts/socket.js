@@ -65,7 +65,8 @@ function connectToRoom() {
 function writeOnHistory(text) {
     let history = document.getElementById('history');
     let paragraph = document.createElement('p');
-    paragraph.innerHTML = text;
+    paragraph.innerHTML = text + ' (' + new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit',
+        year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + ')';;
 
     let firstChild = history.firstChild;
     if (firstChild) {

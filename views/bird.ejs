@@ -39,7 +39,7 @@
           <button id="description_btn" class="btn btn-primary" class="hide">Description</button>
         </li>
         <li class="list-inline-item mb-2 mb-md-0 mr-md-2">
-          <button id="comment_btn" class="btn btn-primary">Comment</button>
+          <button id="comment_btn" class="btn btn-primary">Chat</button>
         </li>
         <li class="list-inline-item mb-2 mb-md-0 mr-md-2">
           <button id="location_btn" class="btn btn-primary">Location</button>
@@ -57,7 +57,7 @@
     </div>
 
     <div id="comment_txt" class="p-2">
-      <h5 class="mb-0">Comment</h5>
+      <h5 class="mb-0">Chat</h5>
 
       <div id="initial_form" class="text-center" style="display: block;">
         <form onsubmit="return false;">
@@ -76,8 +76,8 @@
            <b><%=comment.nickname%>: </b>
             <%=comment.content%>
             <span class="justify-content-right font-weight-bold ">
-              <%= new Date(comment.datetime).toLocaleDateString
-              ('en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) %></span>
+              <%= ('(' + new Date(comment.datetime).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: false }) + ')') %></span>
           </div>
           <br>
 
@@ -98,7 +98,6 @@
         </div>
       </form>
     </div>
-
     <div id="location_text" class="px-2 py-2">
       <h5 class="mb-0">Location</h5>
       <div class="p-3 rounded shadow-sm bg-light">
