@@ -1,4 +1,41 @@
-console.log("index.js")
+(function () {
+    console.log("init");
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register('/sw.js', { scope: "./" })
+            .then(function(registration) {
+                console.info('Service worker registered');
+                checkForUpdate(registration);
+            })
+            .catch(function(error) {
+                console.error('Service worker registration failed ', error);
+            });
+    }
+    function checkForUpdate(registration) {
+        console.log("checkForUpdate");
+        registration.addEventListener("updatefound", function() {
+            if (navigator.serviceWorker.controller) {
+                var installingWorker = registration.installing;
+                installingWorker.onstatechange = function() {
+                    console.info("Service Worker State :", installingWorker.state);
+                    switch(installingWorker.state) {
+                        case 'installed':
+                            navigator.serviceWorker.ready
+                                .then(function (registration) {
+                                    /*
+                                    * Notify user to refresh the webpage.
+                                    */
+                                    registration.showNotification('Site Content Updated\n Please Refresh.')
+                                    registerSync()
+                                });
+                            break;
+                        case 'redundant':
+                            throw new Error('The installing service worker became redundant.');
+                    }
+                }
+            }
+        });
+    }
+})();
 
 function updateSightings(sightings){
     // 创建一个新的 div 元素
@@ -76,4 +113,22 @@ function sortByLocation(data){
         console.log("Geolocation is not supported by this browser.");
     }
 
+}
+
+// Sync For Service Worker
+function registerSync() {
+    new Promise(function (resolve, reject) {
+        Notification.requestPermission(function (result) {
+            resolve();
+        })
+    }).then(function () {
+        return navigator.serviceWorker.ready;
+    }).then(function (reg) {
+        //here register your sync with a tagname and return it
+        return reg.sync.register('sync-tag');
+    }).then(function () {
+        console.info('Sync registered');
+    }).catch(function (err) {
+        console.error('Failed to register sync:', err.message);
+    });
 }
