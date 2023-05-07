@@ -1,0 +1,17 @@
+{
+  "lang": "en-uk",
+  "name": "Bird Watching",
+  "short_name": "Bird Watching",
+  "description": "Team Assignment For Web Intelligent",
+  "start_url": "/",
+  "background_color": "#2f3d58",
+  "theme_color": "#2f3d58",
+  "orientation": "any",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/img/onBoarding.png",
+      "sizes": "512x512"
+    }
+  ]
+}
