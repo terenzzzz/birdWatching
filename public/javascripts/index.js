@@ -77,6 +77,38 @@ function sortByDate(data){
     updateSightings(sorted)
 }
 
+function sortByIdntification(data){
+    var unknowList = []
+    var elseList = []
+
+    data.forEach(st => {
+        console.log(st.nickName)
+        if (st.identification == "Unknow"){
+            unknowList.push(st)
+        }else{
+            elseList.push(st)
+        }
+    });
+    let sortedUnknow = unknowList.sort(function(a, b) {
+        let dateA = new Date(a.dateTime.split('-').reverse().join('-'));
+        let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
+        return dateB - dateA;
+    });
+
+    let sortedElse = elseList.sort(function(a, b) {
+        let dateA = new Date(a.dateTime.split('-').reverse().join('-'));
+        let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
+        return dateB - dateA;
+    });
+
+    sortedElse.forEach(st => {
+        sortedUnknow.push(st)
+    });
+
+
+    updateSightings(unknowList)
+}
+
 function sortByLocation(data){
     if (navigator.geolocation) {
         // Get Current Location

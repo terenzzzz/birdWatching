@@ -27,17 +27,17 @@
     <p class="fw-light">Find birds and build your life list</p>
     <!--    Sort Btn-->
     <div class="row">
-<!--      <div class="btn-group col-4">-->
-<!--        <button type="button" class="btn btn-secondary">-->
-<!--          Most recently-->
-<!--        </button>-->
-<!--      </div>-->
-      <div class="btn-group col-6">
+      <div class="btn-group col-4">
+        <button type="button" class="btn btn-secondary" onclick="sortByIdntification(<%=JSON.stringify(sightings)%>)">
+          Identification
+        </button>
+      </div>
+      <div class="btn-group col-4">
         <button type="button" class="btn btn-secondary" onclick="sortByDate(<%=JSON.stringify(sightings)%>)">
           Most recently
         </button>
       </div>
-      <div class="btn-group col-6">
+      <div class="btn-group col-4">
         <button type="button" class="btn btn-secondary" onclick="sortByLocation(<%=JSON.stringify(sightings)%>)">
           Closest
         </button>
