@@ -52,7 +52,8 @@ function sendChatText() {
  */
 function connectToRoom() {
     roomNo = document.getElementById('roomNo').value;
-    name = document.getElementById('name').value;
+    name = sessionStorage.getItem("nickName")
+    console.log(sessionStorage.getItem("nickName"))
 
     //if (!name) name = 'Unknown-' + Math.random();
     socket.emit('create or join', roomNo, name);
@@ -90,7 +91,7 @@ function hideLoginInterface(room, userId) {
 
 function sendComment() {
 
-    const nickname =document.getElementById("name").value;
+    const nickname =sessionStorage.getItem("nickName");
     const content = document.getElementById("chat_input").value;;
     const roomId = document.getElementById('roomNo').value;
     fetch(`/bird/${roomId}`, {
