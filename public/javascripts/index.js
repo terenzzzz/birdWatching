@@ -1,3 +1,7 @@
+window.onload = function() {
+    registerSync();
+};
+
 (function () {
     console.log("init");
     if ("serviceWorker" in navigator) {
@@ -25,7 +29,6 @@
                                     * Notify user to refresh the webpage.
                                     */
                                     registration.showNotification('Site Content Updated\n Please Refresh.')
-                                    registerSync()
                                 });
                             break;
                         case 'redundant':
