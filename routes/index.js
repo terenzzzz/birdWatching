@@ -59,7 +59,7 @@ router.get('/bird/:id', function(req, res) {
         if (err) throw err;
 
         // Retrieve all comments for the bird sighting
-        Comment.find({ idBird: idBird }).sort({ datetime: -1 }).exec(function(err, comments) {
+        Comment.find({ idBird: idBird }, function(err, comments) {
             console.log(comments);
             if (err) throw err;
 

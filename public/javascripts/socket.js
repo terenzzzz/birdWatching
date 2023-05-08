@@ -64,18 +64,13 @@ function connectToRoom() {
  * @param text: teh text to append
  */
 function writeOnHistory(text) {
-    let history = document.getElementById('history');
+    const histories = document.querySelectorAll('#history');
+    const lastHistory = histories.item(histories.length - 1);
     let paragraph = document.createElement('p');
     paragraph.innerHTML = text + ' (' + new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit',
-        year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + ')';;
+        year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + ')';
 
-    let firstChild = history.firstChild;
-    if (firstChild) {
-        history.insertBefore(paragraph, firstChild);
-    } else {
-        history.appendChild(paragraph);
-    }
-
+    lastHistory.appendChild(paragraph);
     document.getElementById('chat_input').value = '';
 }
 

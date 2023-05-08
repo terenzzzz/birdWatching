@@ -68,21 +68,19 @@
       </div>
       <div id="chat_window" class="shadow-sm bg-light" style="display: none;">
         <div id="chat_interface" style="display: none;">
-          <div id="history" class="boxed"></div>
           <% comments.forEach(function(comment) { %>
-          <div class="bottom boxed">
+          <p  id="history" class="bottom boxed">
             <b><%=comment.nickname%>: </b>
             <%=comment.content%>
             <span class="justify-content-right font-weight-bold ">
               <%= ('(' + new Date(comment.datetime).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit', hour12: false }) + ')') %></span>
-          </div>
-          <br>
+            <% }); %>
 
-          <% }); %>
+          </p>
 
-          <div>
-          </div>
+
+
         </div>
       </div>
       <form onsubmit="sendComment(); return false;">
