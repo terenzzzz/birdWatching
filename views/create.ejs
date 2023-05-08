@@ -28,7 +28,8 @@
     <div class="card-body">
       <div class="row justify-content-center">
         <div class="col-sm-10 col-md-8 col-lg-6">
-          <form id="addForm"  enctype="multipart/form-data" method="POST" action="/create">
+<!--          <form id="addForm"  enctype="multipart/form-data" method="POST" action="/create" >-->
+          <form id="addForm">
             <div class="form-group">
               <label for="identification">Identification:</label>
               <input type="text" class="form-control" id="identification" name="identification" required>
@@ -59,60 +60,15 @@
             <input type="hidden" id="latitude" name="latitude" placeholder="latitude">
             <input type="hidden" id="longitude" name="longitude" placeholder="longitude">
             <button type="submit" class="btn btn-primary d-flex align-items-center mx-auto mb-5">Create</button>
-
           </form>
         </div>
       </div>
     </div>
   </div>
 
-
-
-<!--  <h1 class="fw-bold mt-5 text-center">Create a new sighting</h1>-->
-<!--  <br/><br/>-->
-<!--  <div class="container">-->
-<!--    <div class="row justify-content-center">-->
-<!--      <div class="col-sm-6">-->
-<!--        <form id="addForm"  enctype="multipart/form-data" method="POST" action="/create">-->
-<!--          <div class="form-group">-->
-<!--            <label for="identification">Identification:</label>-->
-<!--            <input type="text" class="form-control" id="identification" name="identification" required>-->
-<!--          </div><br/>-->
-<!--          <div class="form-group">-->
-<!--            <label for="name">Nickname:</label>-->
-<!--            <input type="text" class="form-control" id="nickName" name="nickName" required>-->
-<!--          </div><br/>-->
-<!--          <div class="form-group">-->
-<!--            <label for="description">Description:</label>-->
-<!--            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>-->
-<!--          </div><br/>-->
-<!--          <div class="form-group">-->
-<!--            <label for="date">Date:</label>-->
-<!--            <input type="text" class="form-control" id="dateTime" name="dateTime" placeholder="DD-MM-YYYY" required>-->
-<!--            <div class="invalid-feedback">-->
-<!--              Please enter a valid date format of DD-MM-YYYY.-->
-<!--            </div>-->
-<!--          </div><br/>-->
-<!--          <div class="form-group">-->
-<!--            <label for="image">Upload a photo:</label>-->
-<!--            <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>-->
-<!--          </div><br/><br/>-->
-<!--          <div class="form-group">-->
-<!--            <label for="location">Mark the location where the sighting was spotted:</label>-->
-<!--            <div id="map"  style="height: 400px;width: 600px;  margin: auto;"></div>-->
-<!--          </div><br/>-->
-<!--          <input type="hidden" id="latitude" name="latitude" placeholder="latitude">-->
-<!--          <input type="hidden" id="longitude" name="longitude" placeholder="longitude">-->
-<!--          <button type="submit" class="btn btn-primary d-flex align-items-center mx-auto mb-5">Create</button>-->
-
-<!--        </form>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--  <div id="results" style="margin-top:30px"></div>-->
-
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="/javascripts/create.js"></script>
   <script src="/javascripts/add.js"></script>
+  <script src="/javascripts/indexDb.js"></script>
 </body>
 </html>

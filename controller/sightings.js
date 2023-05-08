@@ -1,8 +1,4 @@
-var bodyParser = require("body-parser");
-var req = require('request');
 var Sighting = require('../models/sightings');
-var path = require('path');
-
 
 exports.create = function (req, res) {
     var sighting = new Sighting({
@@ -16,8 +12,7 @@ exports.create = function (req, res) {
     });
 
     sighting.save(function (err, results) {
-        if (err)
-            res.status(500).send('Invalid data!');
+        if (err) res.status(500).send('Invalid data!');
     });
 };
 

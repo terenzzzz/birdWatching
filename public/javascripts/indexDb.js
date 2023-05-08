@@ -7,24 +7,31 @@ requestIndexedDB.addEventListener("success", handleSuccess)
 
 
 
-function insertSighting (){
+function insertSighting (data){
+    console.log("insertSighting to indexDB")
     const birtWatchingIDB = requestIndexedDB.result
     const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
     const sightingStore = transaction.objectStore("sighting")
 
-    var mySighting = {
-        description: "Testing Description",
-        dateTime: new Date(),
-        nickName: "terenzzzz",
-        latitude: 53,
-        longitude: 42,
-        identification: "Unknown",
-        photo: "testing"
-    };
+    console.log(data)
 
-    const addRequest = sightingStore.add(mySighting)
+    // var sighting = {
+    //     identification : data.identification,
+    //     nickName: data.nickName,
+    //     description: data.description,
+    //     dateTime: data.dateTime,
+    //     latitude: data.latitude,
+    //     longitude: data.longitude,
+    //     photo: data.img
+    // }
+    //
+    // console.log(sighting)
+
+
+    const addRequest = sightingStore.add(data)
     addRequest.onsuccess = (event) => {
         console.log("New sighting added to database with id:", event.target.result)
+        window.location.href = "/index";
     }
     addRequest.onerror = (event) => {
         console.error("Error adding new sighting to database:", event.target.error)

@@ -59,3 +59,38 @@ map.on('click', (event)=> {
     document.getElementById('longitude').value = event.latlng.lng;
 
 })
+
+const form = document.getElementById('addForm');
+form.addEventListener('submit', handleFormSubmit);
+
+function handleFormSubmit(event) {
+    console.log('handleFormSubmit executed')
+    event.preventDefault();
+
+    const form = document.getElementById('addForm');
+    const formData = new FormData(form);
+
+    const sighting = {}
+    for (const [key, value] of formData.entries()) {
+        sighting[key] = value;
+    }
+
+    fetch('/create', {
+        method: 'POST',
+        body: formData
+    }).then(function(response) {
+        if (!response.ok) {
+            throw new Error('Failed to submit form');
+        }
+        // 处理成功响应
+
+        console.log('Form submitted successfully');
+    }).catch(function(error) {
+        // 处理错误
+        console.error('Error submitting form:', error);
+    }).finally(function() {
+        insertSighting(sighting)
+    });
+
+
+}
