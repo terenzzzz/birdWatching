@@ -117,7 +117,7 @@
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h5 class="mb-0">Seen on: <%=sighting.dateTime%></h5>
         </div>
-        <p class="text-muted">Recent users bla bla bla</p>
+        <p class="text-muted">Created by: <%=sighting.nickName%></p>
       </div>
     </div>
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -149,7 +149,7 @@
     </div>
 
     <div>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editModal">Edit Sighting</button>
+      <button id="edit_button" type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editModal">Edit Sighting</button>
 
 
       <a href="/index" class="btn btn-secondary btn-md text-left">Back to Home</a>
@@ -169,7 +169,11 @@
     window.location.href = "/";
     alert("Please Field Your Nick Name.");
   }
-  console.log(sessionStorage.getItem("nickName"));
+
+  if (sessionStorage.getItem("nickName") != "<%=sighting.nickName%>") {
+    edit_button= document.getElementById("edit_button").style.display = 'none';;
+  }
+
 
   function initMap() {
 
