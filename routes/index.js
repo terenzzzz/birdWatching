@@ -88,17 +88,7 @@ router.post('/bird/:id/', (req, res) => {
 });
 
 // GET edit sighting page
-router.get('/bird/:id/edit', function(req, res) {
-    let birdId = req.params.id;
 
-    // Retrieve the sighting from the database
-    Sighting.findOne({ _id: birdId }, function(err, sighting) {
-        if (err) throw err;
-
-        // Render the edit sighting page with the current values of the sighting's fields
-        res.render('edit_bird', {sighting: sighting});
-    });
-});
 router.post('/bird/:id/edit', function(req, res) {
     let birdId = req.params.id;
     console.log('Bird ID:', birdId);
