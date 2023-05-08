@@ -41,16 +41,19 @@ window.onload = function() {
 })();
 
 function updateSightings(sightings){
+    console.log("sightings",sightings)
     // 创建一个新的 div 元素
     var parentDiv = document.getElementById('sighting-container');
 
     parentDiv.innerHTML=""
 
     sightings.forEach(function(obj) {
+        const photoUrl = obj.photo ? obj.photo.replace('public', '') : '/img/default.png';
+
         var templateString = `<div class="card mt-4">
           <div class="card-body row">
             <div class="col-2">
-              <img src="${obj.photo.replace('public', '')}" class="img-thumbnail">
+              <img src="${photoUrl}" class="img-thumbnail">
             </div>
             <div class="col-8">
               <h1>${obj.identification}</h1>
@@ -66,6 +69,17 @@ function updateSightings(sightings){
         // 将 HTML 模板字符串添加到父元素中
         parentDiv.innerHTML += templateString;
     });
+}
+
+function showIndex(){
+    getSighting()
+        .then(result => {
+            console.log("result",result)
+            updateSightings(result)
+        })
+        .catch(error => {
+            console.error('Error retrieving data:', error); // 处理错误
+        });
 
 }
 
@@ -76,6 +90,7 @@ function sortByDate(data){
         let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
         return dateB - dateA;
     });
+
 
     updateSightings(sorted)
 }

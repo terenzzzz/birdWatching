@@ -32,7 +32,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/index', function(req, res, next) {
     index.getAll(function(err, sightings) {
-        if (err) {console.error(err)}
+        if (err) {console.error("err:" + err)}
         else {
             res.render('index', { successful_create: false, sightings:sightings});
         }
