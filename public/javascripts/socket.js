@@ -51,7 +51,7 @@ function sendChatText() {
  * interface
  */
 function connectToRoom() {
-    roomNo = document.getElementById('roomNo').value;
+    roomNo = document.getElementById('comment_btn').value;
     name = sessionStorage.getItem("nickName")
     console.log(sessionStorage.getItem("nickName"))
 
@@ -93,7 +93,7 @@ function sendComment() {
 
     const nickname =sessionStorage.getItem("nickName");
     const content = document.getElementById("chat_input").value;;
-    const roomId = document.getElementById('roomNo').value;
+    const roomId = document.getElementById('comment_btn').value;
     fetch(`/bird/${roomId}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},

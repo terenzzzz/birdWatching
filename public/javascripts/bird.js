@@ -1,5 +1,5 @@
 
-const connectButton = document.getElementById('connect');
+const connectButton = document.getElementById('comment_btn');
 const sendButton = document.getElementById('chat_send');
 const chatWindow= document.getElementById('chat_window');
 const chatInput= document.getElementById('chat_input');

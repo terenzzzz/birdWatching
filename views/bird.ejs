@@ -39,7 +39,7 @@
           <button id="description_btn" class="btn btn-primary" class="hide">Description</button>
         </li>
         <li class="list-inline-item mb-2 mb-md-0 mr-md-2">
-          <button id="comment_btn" class="btn btn-primary">Chat</button>
+          <button id="comment_btn" class="btn btn-primary" onclick="connectToRoom()" value="<%=sighting.id%>">Chat</button>
         </li>
         <li class="list-inline-item mb-2 mb-md-0 mr-md-2">
           <button id="location_btn" class="btn btn-primary">Location</button>
@@ -58,15 +58,8 @@
 
     <div id="comment_txt" class="p-2">
       <h5 class="mb-0">Chat</h5>
-
       <div id="initial_form" class="text-center" style="display: block;">
-        <form onsubmit="return false;">
-          <input type="text" id="name" placeholder="Nickname of user" name="name" />
-          <p>
-            <input type="text" id="roomNo" value="<%=sighting.id%>" name="roomNo" disabled="true" />
-          </p>
-          <button id="connect" class="btn text-light btn-primary btn-outline-success" onclick="connectToRoom()">Join Chat</button>
-        </form>
+           <form onsubmit="return false;"></form>
       </div>
       <div id="chat_window" class="shadow-sm bg-light" style="display: none;">
         <div id="chat_interface" style="display: none;">
