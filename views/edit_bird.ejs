@@ -24,7 +24,7 @@
 <body class="bg-light bg-gradient">
 <!--  Make It Better Look-->
 <div class="card">
-  <div class="card-header fs-1 py-3">Edit Sighting</div>
+  <div class="card-header fs-1 py-3 text-center">Edit Sighting</div>
   <div class="card-body">
     <div class="row justify-content-center">
       <div class="col-sm-10 col-md-8 col-lg-6">
@@ -38,20 +38,8 @@
             <label for="description">Description:</label>
             <textarea class="form-control" id="description" name="description" rows="3" required><%=sighting.description%></textarea>
           </div><br/>
-          <div class="form-group">
-            <label for="date">Date:</label>
-            <input type="text" class="form-control" id="dateTime" name="dateTime" value="<%=sighting.dateTime%>" placeholder="DD-MM-YYYY" required>
-            <div class="invalid-feedback">
-              Please enter a valid date format of DD-MM-YYYY.
-            </div>
-          </div><br/>
 
-          <div class="form-group">
-            <label for="location">Sighting Location:</label>
-            <div id="map"  style="height: 400px;width: 600px;  margin: auto;"></div>
-          </div><br/>
-          <input type="hidden" id="latitude" name="latitude" placeholder="latitude" value=<%=sighting.latitude%>>
-          <input type="hidden" id="longitude" name="longitude" placeholder="longitude" value=<%=sighting.longitude%>>
+
 
           <button type="submit" class="btn btn-primary d-flex align-items-center mx-auto mb-5">Edit</button>
         </form>
