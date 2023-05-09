@@ -81,16 +81,17 @@ function handleFormSubmit(event) {
     }).then(function(response) {
         if (!response.ok) {
             throw new Error('Failed to submit form');
-        }
-        // 处理成功响应
 
-        console.log('Form submitted successfully');
+        }
+        return response.json(); // 将响应转换为JSON格式
+    }).then(function(data) {
+        var id = data.id; // 获取响应中的ID属性
+        insertSighting(sighting,id)
     }).catch(function(error) {
         // 处理错误
         console.error('Error submitting form:', error);
-    }).finally(function() {
-        insertSighting(sighting)
-    });
+        insertSighting(sighting,-1)
+    })
 
 
 }

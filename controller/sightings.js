@@ -12,7 +12,12 @@ exports.create = function (req, res) {
     });
 
     sighting.save(function (err, results) {
-        if (err) res.status(500).send('Invalid data!');
+        if (err){
+            res.status(500).send('Invalid data!')
+        } else {
+            res.status(200).send({id:results._id});
+        };
+
     });
 };
 

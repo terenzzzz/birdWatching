@@ -7,12 +7,13 @@ requestIndexedDB.addEventListener("success", handleSuccess)
 
 
 
-function insertSighting (data){
+function insertSighting (data,id){
     console.log("insertSighting to indexDB")
     const birtWatchingIDB = requestIndexedDB.result
     const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
     const sightingStore = transaction.objectStore("sighting")
 
+    data._id = id
     console.log(data)
 
     const addRequest = sightingStore.add(data)

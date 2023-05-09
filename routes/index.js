@@ -47,7 +47,8 @@ router.post('/create', upload.single('image'), function(req, res) {
     // console.log(req);
     sighting.create(req,res);
     // res.render('index', { successful_create: true});
-    res.redirect('/index');
+    // res.redirect('/index');
+
 });
 
 router.get('/bird/:id', function(req, res) {
