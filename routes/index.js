@@ -43,7 +43,7 @@ router.get('/index', function(req, res, next) {
 router.get('/create', function(req, res, next) {
     res.render('create');
 });
-router.post('/create', upload.single('image'), function(req, res) {
+router.post('/create', upload.single('photo'), function(req, res) {
     sighting.create(req,res);
 });
 

@@ -45,28 +45,7 @@
         </button>
       </div>
     </div>
-    <div id="sighting-container">
-      <% sightings.forEach(function(sighting) { %>
-        <div class="card mt-4">
-          <div class="card-body row">
-            <div class="col-2">
-              <img src="<%= sighting.photo.replace('public', '') %>" class="img-thumbnail">
-            </div>
-            <div class="col-8">
-              <h1><%= sighting.identification %></h1>
-              <p class="m-0 p-0">Seen on <%= sighting.dateTime %></p>
-              <p class="m-0 p-0">By <%= sighting.nickName %></p>
-              <p class="m-0 p-0 text-primary"><%= parseFloat(sighting.latitude).toFixed(2) %>, <%= parseFloat(sighting.longitude).toFixed(2) %></p>
-            </div>
-            <div class="col-2 d-flex justify-content-center align-items-center">
-              <a href="/bird/<%= sighting._id %>"><%= sighting.name %><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
-            </div>
-          </div>
-        </div>
-      <% }); %>
-    </div>
-    <button onclick="showIndex()">getIndexDb</button>
-
+    <div id="sighting-container" data-sightings="<%=JSON.stringify(sightings)%>"></div>
 
   </body>
 </html>

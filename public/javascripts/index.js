@@ -1,5 +1,16 @@
-window.onload = function() {
+let allSightings = []
+window.onload = async function () {
     registerSync();
+    var sightingsData = JSON.parse(document.getElementById('sighting-container').getAttribute('data-sightings'));
+
+    try {
+        allSightings = await combineSightings(sightingsData);
+        // 在这里使用 result 值
+        updateSightings(allSightings)
+    } catch (error) {
+        // 处理错误
+        console.error('Error occurred:', error);
+    }
 };
 
 (function () {
@@ -40,15 +51,21 @@ window.onload = function() {
     }
 })();
 
-function updateSightings(sightings){
-    console.log("sightings",sightings)
+function updateSightings(sightings) {
+    console.log("sightings", sightings)
+
     // 创建一个新的 div 元素
     var parentDiv = document.getElementById('sighting-container');
 
-    parentDiv.innerHTML=""
+    parentDiv.innerHTML = ""
 
-    sightings.forEach(function(obj) {
-        const photoUrl = obj.photo ? obj.photo.replace('public', '') : '/img/default.png';
+    sightings.forEach(function (obj) {
+        let photoUrl
+        if (typeof obj.photo == "string"){
+            photoUrl = obj.photo ? obj.photo.replace('public', '') : '/img/default.png';
+        }else{
+            photoUrl = '/img/default.png'
+        }
 
         var templateString = `<div class="card mt-4">
           <div class="card-body row">
@@ -71,49 +88,62 @@ function updateSightings(sightings){
     });
 }
 
-function showIndex(){
-    getSighting()
-        .then(result => {
-            console.log("result",result)
-            updateSightings(result)
+async function combineSightings (data) {
+    try {
+        const result = await getNotSync();
+        // 在这里使用 result 值
+        console.log("Received result:", result);
+        result.forEach(function (obj) {
+            data.push(obj)
         })
-        .catch(error => {
-            console.error('Error retrieving data:', error); // 处理错误
-        });
-
+        return data
+    } catch (error) {
+        // 处理错误
+        console.error('Error occurred:', error);
+    }
 }
 
-function sortByDate(data){
 
-    let sorted = data.sort(function(a, b) {
+
+async function getNotSync() {
+    try {
+        const result = await getSighting();
+        console.log("result", result);
+        return result; // 将 result 值返回给调用者
+    } catch (error) {
+        console.error('Error retrieving data:', error);
+        throw error; // 将错误抛出给调用者
+    }
+}
+
+function sortByDate() {
+    let sorted = allSightings.sort(function (a, b) {
         let dateA = new Date(a.dateTime.split('-').reverse().join('-'));
         let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
         return dateB - dateA;
     });
-
-
     updateSightings(sorted)
 }
 
-function sortByIdntification(data){
+async function sortByIdntification() {
     var unknowList = []
     var elseList = []
 
-    data.forEach(st => {
+    allSightings.forEach(st => {
         console.log(st.nickName)
-        if (st.identification == "Unknow"){
+        if (st.identification == "Unknow") {
             unknowList.push(st)
-        }else{
+        } else {
             elseList.push(st)
         }
     });
-    let sortedUnknow = unknowList.sort(function(a, b) {
+    let sortedUnknow = unknowList.sort(function (a, b) {
         let dateA = new Date(a.dateTime.split('-').reverse().join('-'));
         let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
         return dateB - dateA;
     });
 
-    let sortedElse = elseList.sort(function(a, b) {
+    let sortedElse = elseList.sort(function (a, b) {
         let dateA = new Date(a.dateTime.split('-').reverse().join('-'));
         let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
         return dateB - dateA;
@@ -122,12 +152,10 @@ function sortByIdntification(data){
     sortedElse.forEach(st => {
         sortedUnknow.push(st)
     });
-
-
     updateSightings(unknowList)
 }
 
-function sortByLocation(data){
+function sortByLocation(){
     if (navigator.geolocation) {
         // Get Current Location
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -138,23 +166,21 @@ function sortByLocation(data){
             var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
             // Calculate Distance and add to dictionary
-            data.forEach(st => {
+            allSightings.forEach(st => {
                 console.log(st)
                 var point2 = new google.maps.LatLng(st.latitude, st.longitude);
                 var distance = google.maps.geometry.spherical.computeDistanceBetween(currentLocation, point2);
                 // turn into km
                 var distanceInKm = distance / 1000;
-                idDis[st._id] = distanceInKm;
+                st.distance = distanceInKm
             });
-            // Sort Dictionary by distance
-            const sortedDict = Object.entries(idDis).sort((a, b) => a[1] - b[1]);
-
 
             // Sorted Sightings Object
-            var sorted = []
-            sortedDict.forEach(st=>{
-                sorted.push(data.find(item => item._id === st[0]))
+            var sorted = allSightings.sort(function(a, b) {
+                return a.distance - b.distance;
             })
+
+            console.log("sorted",sorted)
             updateSightings(sorted)
         }, function(error) {
             console.log("Error getting current position: " + error.message);

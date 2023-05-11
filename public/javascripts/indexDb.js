@@ -38,7 +38,9 @@ function getSighting() {
             const cursor = event.target.result;
             if (cursor) {
                 const data = cursor.value;
-                result.push(data); // 将对象数据添加到数组中
+                if (data._id == -1){
+                    result.push(data); // 将对象数据添加到数组中
+                }
                 cursor.continue();
             } else {
                 // 遍历完所有对象，使用 Promise 的 resolve 返回结果
