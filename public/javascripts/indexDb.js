@@ -18,8 +18,8 @@ function insertSighting (data,id){
 
     const addRequest = sightingStore.add(data)
     addRequest.onsuccess = (event) => {
-        console.log("New sighting added to database with id:", event.target.result)
         window.location.href = "/index";
+        console.log("New sighting added to database with id:", event.target.result)
     }
     addRequest.onerror = (event) => {
         console.error("Error adding new sighting to database:", event.target.error)

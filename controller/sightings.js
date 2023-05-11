@@ -11,13 +11,14 @@ exports.create = function (req, res) {
         photo: req.file.path
     });
 
-    sighting.save(function (err, results) {
-        if (err){
-            res.status(500).send('Invalid data!')
+    sighting.save(function (err, result) {
+        if (err) {
+            console.error('Error saving sighting:', err);
+            res.status(500).send('Invalid data!');
         } else {
-            res.status(200).send({id:results._id});
-        };
-
+            res.status(200).send({ id: result._id });
+            console.info("result._id:",result._id)
+        }
     });
 };
 

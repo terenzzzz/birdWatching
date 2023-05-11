@@ -5,7 +5,7 @@ const filesToCache = [
     // "stylesheets/menu.css",
     "https://b.tile.openstreetmap.org/10/506/332.png",
     "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js",
-    "javascripts/add.js",
+    // "javascripts/add.js",
     "javascripts/create.js",
     // "javascripts/index.js",
     "javascripts/index.js",
@@ -41,8 +41,11 @@ async function networkThenCache(event) {
         const networkResponse = await fetch(event.request);
         console.log('Calling network: ' + event.request.url);
         // Store the network response in a cache for future use
+
         const cache = await caches.open(staticCacheName);
-        await cache.put(event.request, networkResponse.clone());
+        if (event.request.method === 'GET') {
+            await cache.put(event.request, networkResponse.clone());
+        }
         return networkResponse;
     } catch (error) {
         console.error('Failed to fetch from network:', error);
