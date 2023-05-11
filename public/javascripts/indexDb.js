@@ -26,6 +26,45 @@ function insertSighting (data,id){
     }
 }
 
+function updateUnsync (data){
+    // console.log("updateUnsync")
+    console.log("updateUnsyncdata:",data.result)
+
+    const birtWatchingIDB = requestIndexedDB.result
+    const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
+    const sightingStore = transaction.objectStore("sighting")
+
+    // 使用游标遍历对象存储空间中的数据
+    var request = sightingStore.openCursor();
+    request.onerror = function(event) {
+        console.error('Failed to open cursor:', event.target.error);
+    };
+    request.onsuccess = function(event) {
+        var cursor = event.target.result;
+
+        if (cursor) {
+            var indexData = cursor.value;
+            if (cursor.value._id == -1) {
+                // 使用游标的 update() 方法更新对象
+                var updatedData = {
+                    ...indexData,
+                    _id: data.result[0]._id
+                };
+                // 使用游标的 update() 方法更新对象
+                var updateRequest = cursor.update(updatedData);
+                data.result.shift()
+
+                updateRequest.onerror = function (event) {
+                    console.error('Failed to update data:', event.target.error);
+                };
+                updateRequest.onsuccess = function (event) {};
+            }
+            // 继续遍历下一个数据项
+            cursor.continue();
+        }
+    }
+}
+
 function getSighting() {
     return new Promise((resolve, reject) => {
         const birtWatchingIDB = requestIndexedDB.result;
@@ -74,3 +113,4 @@ function handleSuccess(ev){
     // init
     console.log("IndexDb Success" )
 }
+

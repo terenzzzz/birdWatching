@@ -199,12 +199,33 @@ function registerSync() {
         })
     }).then(function () {
         return navigator.serviceWorker.ready;
-    }).then(function (reg) {
+    }).then(async function (reg) {
         //here register your sync with a tagname and return it
+        try {
+            const result = await getNotSync();
+            reg.active.postMessage({
+                action: 'syncDataToMongoDB',
+                data: result
+            })
+            console.log("result:::",result)
+        } catch (error) {
+            // 处理错误
+            console.error('Error occurred:', error);
+        }
         return reg.sync.register('sync-tag');
+
     }).then(function () {
         console.info('Sync registered');
     }).catch(function (err) {
         console.error('Failed to register sync:', err.message);
     });
 }
+
+navigator.serviceWorker.addEventListener('message', function(event) {
+    if (event.data.action === "syncDataResult") {
+        var results = event.data.result;
+        // 处理同步数据结果
+        updateUnsync(results)
+    }
+});
+

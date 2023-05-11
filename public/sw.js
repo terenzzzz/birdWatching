@@ -1,13 +1,7 @@
 const filesToCache = [
-    // "partials/footer.ejs",
-    // "partials/header.ejs",
-    // "stylesheets/style.css",
-    // "stylesheets/menu.css",
     "https://b.tile.openstreetmap.org/10/506/332.png",
     "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js",
-    // "javascripts/add.js",
     "javascripts/create.js",
-    // "javascripts/index.js",
     "javascripts/index.js",
     "manifest.json",
     "img/onBoarding.png",
@@ -32,9 +26,63 @@ self.addEventListener('fetch', (event) => {
 
 });
 
+self.addEventListener('message', async function(event) {
+    console.log('Received message:', event.data);
+    if (event.data.action === "syncDataToMongoDB") {
+        try {
+            const result = await syncDataToMongoDB(event.data.data);
+            self.clients.matchAll().then(function(clients) {
+                clients.forEach(function(client) {
+                    client.postMessage({ action: "syncDataResult", result: result });
+                });
+            });
+        } catch (error) {
+            console.error('Error syncing data to MongoDB:', error);
+        }
+    }
+});
+
+
+async function syncDataToMongoDB(data) {
+    console.log("syncDataToMongoDB",data)
+
+
+    // 创建一个新的 FormData 对象
+    var formData = new FormData();
+    formData.append("data",JSON.stringify(data))
+
+    // 遍历数组中的每个对象
+    data.forEach(function (obj) {
+        Object.keys(obj).forEach(function (key) {
+            if (key === 'photo') {
+                // 如果属性名是 'photo'，将文件对象作为值添加到 FormData
+                formData.append(key, obj[key]);
+            }
+        });
+    });
+
+    try {
+        const response = await fetch('/syncToMongo', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to submit form');
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.log('Error submitting form:', error);
+        throw error;
+    }
+}
+
 self.addEventListener('sync', (event) => {
     console.info('Event: Sync', event);
 });
+
 
 async function networkThenCache(event) {
     try {
@@ -59,6 +107,12 @@ async function networkThenCache(event) {
         return new Response('Offline Page');
     }
 }
+
+
+
+
+// 从 IndexedDB 中读取离线数据
+
 
 // async function cacheThenNetwork(event) {
 //     const cache = await caches.open(staticCacheName);

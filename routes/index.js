@@ -103,4 +103,11 @@ router.post('/bird/:id/edit', function(req, res) {
     });
 });
 
+router.post("/syncToMongo",upload.array('photo'),function(req, res) {
+    // console.log(req.body)
+    // console.log(req.files)
+    sighting.sync(req,res);
+//
+})
+
 module.exports = router;
