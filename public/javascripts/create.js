@@ -69,6 +69,7 @@ function handleFormSubmit(event) {
 
     const form = document.getElementById('addForm');
     const formData = new FormData(form);
+    formData.append('nickName', sessionStorage.getItem('nickName'));
 
     const sighting = {}
     for (const [key, value] of formData.entries()) {
