@@ -54,6 +54,7 @@ function connectToRoom() {
     roomNo = document.getElementById('comment_btn').value;
     name = sessionStorage.getItem("nickName")
     console.log(sessionStorage.getItem("nickName"))
+    hideLoginInterface(roomNo, name);
 
     //if (!name) name = 'Unknown-' + Math.random();
     socket.emit('create or join', roomNo, name);
@@ -65,7 +66,7 @@ function connectToRoom() {
  */
 function writeOnHistory(text) {
     const chatInterface = document.getElementById("chat_interface")
-
+    document.getElementById('chat_interface').style.display = 'block';
     let paragraph = document.createElement('p');
     paragraph.innerHTML = text + ' (' + new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit',
         year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + ')';
@@ -96,6 +97,10 @@ function sendComment() {
     }).then(function (){
         var chatWindow = document.getElementById('chat_window');
         chatWindow.scrollTop = chatWindow.scrollHeight;
+    }).catch(function (){
+        console.log("Catch")
+        insertComment(JSON.stringify({nickname: nickname, content}),roomId)
+
     })
 }
 

@@ -1,10 +1,14 @@
 const filesToCache = [
     "https://b.tile.openstreetmap.org/10/506/332.png",
     "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js",
+    "https://maps.googleapis.com/maps/api/js?key=AIzaSyC-ENULiIcN4gEjuDWK9S42fE2ljikToEw&callback=initMap",
+    "javascripts/socket.js",
+    "javascripts/bird.js",
     "javascripts/create.js",
     "javascripts/index.js",
     "manifest.json",
     "img/onBoarding.png",
+    "/bird/*",
     "/create",
     "/index",
     "/"
@@ -102,10 +106,12 @@ async function networkThenCache(event) {
         console.error('Failed to fetch from network:', error);
         // If the network request fails, try to find the corresponding resource from the cache
         const cache = await caches.open(staticCacheName);
-        const cachedResponse = await cache.match(event.request);
-        if (cachedResponse) {
-            console.log('Serving From Cache: ' + event.request.url);
-            return cachedResponse;
+        if (event.request.method === 'GET') {
+            const cachedResponse = await cache.match(event.request);
+            if (cachedResponse) {
+                console.log('Serving From Cache: ' + event.request.url);
+                return cachedResponse;
+            }
         }
         return new Response('Offline Page');
     }

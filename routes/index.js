@@ -50,15 +50,22 @@ router.post('/create', upload.single('photo'), function(req, res) {
 router.get('/bird/:id', function(req, res) {
     const idBird = req.params.id;
 
-    // Retrieve the sighting object based on the birdId parameter
     Sighting.findOne({ _id: idBird }, function(err, sighting) {
-        if (err) throw err;
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
 
-        // Retrieve all comments for the bird sighting
+        if (!sighting) {
+            return res.status(404).json({ error: 'Sighting not found' });
+        }
+
         Comment.find({ idBird: idBird }, function(err, comments) {
-            if (err) throw err;
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
 
-            // Render the bird view with the sighting and comments objects
             res.render('bird', { sighting: sighting, comments: comments });
         });
     });

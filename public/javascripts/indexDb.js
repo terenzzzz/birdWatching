@@ -1,3 +1,4 @@
+
 let requestIndexedDB = indexedDB.open("birdWatching",2)
 
 
@@ -25,6 +26,33 @@ function insertSighting (data,id){
     };
     addRequest.onerror = (event) => {
         console.error("Error adding new sighting to database:", event.target.error)
+    }
+}
+
+function insertComment (data,id){
+    const birtWatchingIDB = requestIndexedDB.result
+    const transaction = birtWatchingIDB.transaction(["comment"],"readwrite")
+    const commentStore = transaction.objectStore("comment")
+
+    let parsedData = JSON.parse(data)
+    console.log(parsedData)
+
+    let comment = {
+        idBird: id,
+        content: parsedData.content,
+        nickname: parsedData.nickname,
+        datetime: Date.now()
+    };
+
+    const addRequest = commentStore.add(comment)
+    addRequest.onsuccess = (event) => {
+        console.log("New Comment added to database with id:", event.target.result);
+        writeOnHistory('<b>' + "Me" + ':</b> ' + parsedData.content);
+        var chatWindow = document.getElementById('chat_window');
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    };
+    addRequest.onerror = (event) => {
+        console.error("Error Comment new sighting to database:", event.target.error)
     }
 }
 
@@ -108,7 +136,8 @@ function handlerError(err){
 function upgradeStores(ev){
     const db = ev.target.result
     db.createObjectStore("sighting",{keyPath:"id", autoIncrement : true})
-    console.log("Object:'Sighting' created in upgradeStores" )
+    db.createObjectStore("comment",{keyPath:"id", autoIncrement : true})
+    console.log("Object:'Sighting' and Object:'comment' created in upgradeStores" )
 }
 
 function handleSuccess(ev){
