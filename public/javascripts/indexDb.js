@@ -48,8 +48,6 @@ function insertComment (data,id){
     addRequest.onsuccess = (event) => {
         console.log("New Comment added to database with id:", event.target.result);
         writeOnHistory('<b>' + "Me" + ':</b> ' + parsedData.content);
-        var chatWindow = document.getElementById('chat_window');
-        chatWindow.scrollTop = chatWindow.scrollHeight;
     };
     addRequest.onerror = (event) => {
         console.error("Error Comment new sighting to database:", event.target.error)

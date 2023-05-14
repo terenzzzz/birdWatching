@@ -51,26 +51,34 @@ router.post('/create', upload.single('photo'), function(req, res) {
 router.get('/bird/:id', function(req, res) {
     const idBird = req.params.id;
 
-    Sighting.findOne({ _id: idBird }, function(err, sighting) {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
+    console.log("idBird:",idBird)
 
-        if (!sighting) {
-            return res.status(404).json({ error: 'Sighting not found' });
-        }
+    if (idBird === ":id") {
+        return res.status(400).json({ error: 'Invalid ID' });
+    }
 
-        Comment.find({ idBird: idBird }, function(err, comments) {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ error: 'Internal Server Error' });
+    try {
+        // Retrieve the sighting object based on the birdId parameter
+        Sighting.findOne({ _id: idBird }, function(err, sighting) {
+            if (err) throw err;
+
+            if (!sighting) {
+                return res.status(404).json({ error: 'Sighting not found' });
             }
 
-            res.render('bird', { sighting: sighting, comments: comments });
+            Comment.find({ idBird: idBird }, function(err, comments) {
+                if (err) throw err;
+
+                // Render the bird view with the sighting and comments objects
+                res.render('bird', { sighting: sighting, comments: comments });
+            });
         });
-    });
+
+    } catch (err) {
+        res.status(400).json({ error: 'Invalid ID' });
+    }
 });
+
 
 router.post('/bird/:id/', (req, res) => {
     const comment = new Comment({

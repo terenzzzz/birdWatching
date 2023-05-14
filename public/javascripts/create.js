@@ -75,23 +75,28 @@ function handleFormSubmit(event) {
     for (const [key, value] of formData.entries()) {
         sighting[key] = value;
     }
-
-    fetch('/create', {
-        method: 'POST',
-        body: formData
-    }).then(function(response) {
-        if (!response.ok) {
-            throw new Error('Failed to submit form');
-        }
-        return response.json(); // 将响应转换为JSON格式
-    }).then(function(data) {
-        console.log("data.id:",data.id)
-        var id = data.id; // 获取响应中的ID属性
-        insertSighting(sighting,id)
-
-    }).catch(function(error) {
-        // 处理错误
-        console.log('Error submitting form:', error);
+    if (navigator.onLine) {
+        // 在线状态，发送请求
+        fetch('/create', {
+            method: 'POST',
+            body: formData
+        }).then(function(response) {
+            if (!response.ok) {
+                throw new Error('Failed to submit form');
+            }
+            return response.json(); // 将响应转换为JSON格式
+        }).then(function(data) {
+            console.log("data.id:",data.id)
+            var id = data.id; // 获取响应中的ID属性
+            insertSighting(sighting,id)
+        }).catch(function(error) {
+            // 处理错误
+            console.log('Error submitting form:', error);
+            insertSighting(sighting,-1)
+        })
+    } else {
         insertSighting(sighting,-1)
-    })
+    }
+    console.log("fetch 完成");
+
 }

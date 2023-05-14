@@ -40,6 +40,7 @@ function init() {
  * and sends the message via  socket
  */
 function sendChatText() {
+    console.log("sendChatText触发")
     let chatText = document.getElementById('chat_input').value;
     if (chatText != "" || chatText == null) {
         socket.emit('chat', roomNo, name, chatText);
@@ -65,6 +66,7 @@ function connectToRoom() {
  * @param text: teh text to append
  */
 function writeOnHistory(text) {
+    console.log("writeOnHistory:",text)
     const chatInterface = document.getElementById("chat_interface")
     document.getElementById('chat_interface').style.display = 'block';
     let paragraph = document.createElement('p');
@@ -72,6 +74,8 @@ function writeOnHistory(text) {
         year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + ')';
     chatInterface.appendChild(paragraph);
 
+    var chatWindow = document.getElementById('chat_window');
+    chatWindow.scrollTop = chatWindow.scrollHeight;
     document.getElementById('chat_input').value = '';
 }
 
@@ -86,21 +90,29 @@ function hideLoginInterface(room, userId) {
 }
 
 function sendComment() {
-
+    console.log("sendComment触发")
     const nickname =sessionStorage.getItem("nickName");
     const content = document.getElementById("chat_input").value;;
     const roomId = document.getElementById('comment_btn').value;
-    fetch(`/bird/${roomId}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({nickname: nickname, content})
-    }).then(function (){
-        var chatWindow = document.getElementById('chat_window');
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }).catch(function (){
-        console.log("Catch")
-        insertComment(JSON.stringify({nickname: nickname, content}),roomId)
-
-    })
+    if (navigator.onLine) {
+        // 在线状态，发送请求
+        fetch(`/bird/${roomId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({nickname: nickname, content})
+        })
+        .catch(function() {
+            console.log("Comment Add to Mongo Failed, calling insertComment");
+            insertComment(JSON.stringify({nickname: nickname, content}), roomId);
+        })
+        .then(function() {
+            console.log("fetch 完成");
+        });
+    } else {
+        // 离线状态，调用 insertComment
+        console.log("离线状态，调用 insertComment");
+        insertComment(JSON.stringify({nickname: nickname, content}), roomId);
+        console.log("fetch 完成");
+    }
 }
 

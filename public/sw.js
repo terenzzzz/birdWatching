@@ -8,9 +8,9 @@ const filesToCache = [
     "javascripts/index.js",
     "manifest.json",
     "img/onBoarding.png",
-    // "/bird/*",
     "/create",
     "/index",
+    "/bird/:id",
     "/"
 ];
 const staticCacheName = 'birdWatching';
