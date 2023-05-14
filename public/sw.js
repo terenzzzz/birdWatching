@@ -26,14 +26,16 @@ self.addEventListener('fetch', (event) => {
 
 });
 
-self.addEventListener('message', async function(event) {
+self.addEventListener('message', async function (event) {
     console.log('Received message:', event.data);
     if (event.data.action === "syncDataToMongoDB") {
         try {
             const result = await syncDataToMongoDB(event.data.data);
-            self.clients.matchAll().then(function(clients) {
-                clients.forEach(function(client) {
-                    client.postMessage({ action: "syncDataResult", result: result });
+            self.clients.claim().then(function () {
+                self.clients.matchAll().then(function (clients) {
+                    clients.forEach(function (client) {
+                        client.postMessage({action: "syncDataResult", result: result});
+                    });
                 });
             });
         } catch (error) {
@@ -41,6 +43,7 @@ self.addEventListener('message', async function(event) {
         }
     }
 });
+
 
 
 async function syncDataToMongoDB(data) {

@@ -207,7 +207,7 @@ function registerSync() {
                 action: 'syncDataToMongoDB',
                 data: result
             })
-            console.log("result:::",result)
+            console.log("postMessage in action syncDataToMongoDB data:",result)
         } catch (error) {
             // 处理错误
             console.error('Error occurred:', error);
