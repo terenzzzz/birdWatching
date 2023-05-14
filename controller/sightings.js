@@ -26,9 +26,7 @@ exports.create = function (req, res) {
 
 exports.sync = function (req, res) {
     let sightings = JSON.parse(req.body.data)
-
     console.log("sightings",sightings)
-
     // 获取上传的文件数组
     var files = req.files;
     console.log("files",files)

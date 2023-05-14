@@ -18,9 +18,11 @@ function insertSighting (data,id){
 
     const addRequest = sightingStore.add(data)
     addRequest.onsuccess = (event) => {
-        window.location.href = "/index";
-        console.log("New sighting added to database with id:", event.target.result)
-    }
+        console.log("New sighting added to database with id:", event.target.result);
+        setTimeout(() => {
+            window.location.href = "/index";
+        }, 500); // 延迟500毫秒后执行重定向操作
+    };
     addRequest.onerror = (event) => {
         console.error("Error adding new sighting to database:", event.target.error)
     }
