@@ -1,7 +1,6 @@
 
 exports.init = function(io) {
   io.sockets.on('connection', function (socket) {
-    console.log("try");
     try {
       /**
        * create or joins a room
@@ -19,7 +18,6 @@ exports.init = function(io) {
       });
 
       socket.on('disconnect', function(){
-        console.log('someone disconnected');
 
       });
     } catch (e) {

@@ -94,18 +94,5 @@ function sendComment() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({nickname: nickname, content})
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Could not save comment');
-            }
-            return response.json();
-        })
-        .then(savedComment => {
-
-        })
-        .catch(error => {
-            console.error(error);
-            // display an error message to the user
-        });
 }
 

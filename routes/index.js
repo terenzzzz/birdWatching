@@ -49,7 +49,6 @@ router.post('/create', upload.single('photo'), function(req, res) {
 
 router.get('/bird/:id', function(req, res) {
     const idBird = req.params.id;
-    console.log(idBird);
 
     // Retrieve the sighting object based on the birdId parameter
     Sighting.findOne({ _id: idBird }, function(err, sighting) {
@@ -57,7 +56,6 @@ router.get('/bird/:id', function(req, res) {
 
         // Retrieve all comments for the bird sighting
         Comment.find({ idBird: idBird }, function(err, comments) {
-            console.log(comments);
             if (err) throw err;
 
             // Render the bird view with the sighting and comments objects
@@ -75,7 +73,7 @@ router.post('/bird/:id/', (req, res) => {
     comment.save()
         .then(savedComment => {
             res.json(savedComment);
-            console.log("Success")
+           // console.log("Comment Saved")
         })
         .catch(err => {
             console.error(err);
