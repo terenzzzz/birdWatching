@@ -1,5 +1,6 @@
 let allSightings = []
 window.onload = async function () {
+    console.log("index.onload")
     registerSync();
     var sightingsData = JSON.parse(document.getElementById('sighting-container').getAttribute('data-sightings'));
 
@@ -116,6 +117,17 @@ async function getNotSync() {
     }
 }
 
+async function getNotSyncComment() {
+    try {
+        const result = await getComment();
+        console.log("Comment result", result);
+        return result; // 将 result 值返回给调用者
+    } catch (error) {
+        console.error('Error retrieving data:', error);
+        throw error; // 将错误抛出给调用者
+    }
+}
+
 function sortByDate() {
     let sorted = allSightings.sort(function (a, b) {
         let dateA = new Date(a.dateTime.split('-').reverse().join('-'));
@@ -202,12 +214,14 @@ function registerSync() {
     }).then(async function (reg) {
         //here register your sync with a tagname and return it
         try {
-            const result = await getNotSync();
+            const sightingResult = await getNotSync();
+            const commentResult = await getNotSyncComment();
             reg.active.postMessage({
                 action: 'syncDataToMongoDB',
-                data: result
+                data: sightingResult,
+                commentData: commentResult
             })
-            console.log("postMessage in action syncDataToMongoDB data:",result)
+            console.log("postMessage in action syncDataToMongoDB data:",commentResult)
         } catch (error) {
             // 处理错误
             console.error('Error occurred:', error);
@@ -224,8 +238,11 @@ function registerSync() {
 navigator.serviceWorker.addEventListener('message', function(event) {
     if (event.data.action === "syncDataResult") {
         var results = event.data.result;
+        var commentResult = event.data.commentResult;
+        console.log("commentResult",commentResult)
         // 处理同步数据结果
         updateUnsync(results)
+        updateCommentUnsync(commentResult)
     }
 });
 

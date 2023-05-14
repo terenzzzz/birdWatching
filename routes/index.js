@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var bodyParser= require("body-parser");
 var sighting = require('../controller/sightings');
+var comment = require('../controller/comment');
 var index = require('../controller/index');
 var multer = require('multer');
 const Sighting = require("../models/sightings");
@@ -112,6 +113,14 @@ router.post("/syncToMongo",upload.array('photo'),function(req, res) {
     // console.log(req.body)
     // console.log(req.files)
     sighting.sync(req,res);
+//
+})
+
+router.post("/syncCommentToMongo",function(req, res) {
+    // console.log(req.body)
+    // console.log(req.files)
+    console.log("/syncCommentToMongo")
+    comment.syncComment(req,res);
 //
 })
 

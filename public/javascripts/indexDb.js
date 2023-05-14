@@ -30,12 +30,12 @@ function insertSighting (data,id){
 }
 
 function insertComment (data,id){
+    console.log("insertComment",insertComment)
     const birtWatchingIDB = requestIndexedDB.result
     const transaction = birtWatchingIDB.transaction(["comment"],"readwrite")
     const commentStore = transaction.objectStore("comment")
 
     let parsedData = JSON.parse(data)
-    console.log(parsedData)
 
     let comment = {
         idBird: id,
@@ -95,6 +95,29 @@ function updateUnsync (data){
     }
 }
 
+function updateCommentUnsync (data){
+    // console.log("updateUnsync")
+    console.log("updateUnsyncdata:",data.result)
+
+    const birtWatchingIDB = requestIndexedDB.result
+    const transaction = birtWatchingIDB.transaction(["comment"],"readwrite")
+    const commentStore = transaction.objectStore("comment")
+
+    if (data.result == 200){
+        // 清除对象存储中的数据
+        const clearRequest = commentStore.clear();
+
+        clearRequest.onerror = function(event) {
+            console.error('Failed to clear data:', event.target.error);
+        };
+
+        clearRequest.onsuccess = function(event) {
+            console.log('Data cleared successfully');
+        };
+    }
+
+}
+
 function getSighting() {
     return new Promise((resolve, reject) => {
         const birtWatchingIDB = requestIndexedDB.result;
@@ -110,6 +133,33 @@ function getSighting() {
                 if (data._id == -1){
                     result.push(data); // 将对象数据添加到数组中
                 }
+                cursor.continue();
+            } else {
+                // 遍历完所有对象，使用 Promise 的 resolve 返回结果
+                resolve(result);
+            }
+        };
+
+        cursorRequest.onerror = function(event) {
+            // 处理错误，使用 Promise 的 reject 返回错误信息
+            reject(event.target.error);
+        };
+    });
+}
+
+function getComment() {
+    return new Promise((resolve, reject) => {
+        const birtWatchingIDB = requestIndexedDB.result;
+        const transaction = birtWatchingIDB.transaction(["comment"], "readwrite");
+        const commentStore = transaction.objectStore("comment");
+        const cursorRequest = commentStore.openCursor();
+        const result = []; // 存储查询结果的数组
+
+        cursorRequest.onsuccess = function(event) {
+            const cursor = event.target.result;
+            if (cursor) {
+                const data = cursor.value;
+                result.push(data)
                 cursor.continue();
             } else {
                 // 遍历完所有对象，使用 Promise 的 resolve 返回结果

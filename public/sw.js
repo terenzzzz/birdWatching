@@ -8,7 +8,7 @@ const filesToCache = [
     "javascripts/index.js",
     "manifest.json",
     "img/onBoarding.png",
-    "/bird/*",
+    // "/bird/*",
     "/create",
     "/index",
     "/"
@@ -34,11 +34,14 @@ self.addEventListener('message', async function (event) {
     console.log('Received message:', event.data);
     if (event.data.action === "syncDataToMongoDB") {
         try {
+            console.log("try")
             const result = await syncDataToMongoDB(event.data.data);
+            const commentResult = await syncCommentToMongoDB(event.data.commentData);
+
             self.clients.claim().then(function () {
                 self.clients.matchAll().then(function (clients) {
                     clients.forEach(function (client) {
-                        client.postMessage({action: "syncDataResult", result: result});
+                        client.postMessage({action: "syncDataResult", result: result,commentResult:commentResult});
                     });
                 });
             });
@@ -86,6 +89,28 @@ async function syncDataToMongoDB(data) {
     }
 }
 
+async function syncCommentToMongoDB(data) {
+    console.log("syncCommentToMongoDB",data)
+
+    try {
+        const response = await fetch('/syncCommentToMongo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to submit form');
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.log('Error submitting form:', error);
+        throw error;
+    }
+}
+
 self.addEventListener('sync', (event) => {
     console.info('Event: Sync', event);
 });
@@ -103,7 +128,7 @@ async function networkThenCache(event) {
         }
         return networkResponse;
     } catch (error) {
-        console.error('Failed to fetch from network:', error);
+        console.info('Failed to fetch from network:', error);
         // If the network request fails, try to find the corresponding resource from the cache
         const cache = await caches.open(staticCacheName);
         if (event.request.method === 'GET') {
