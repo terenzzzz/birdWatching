@@ -93,6 +93,9 @@ function sendComment() {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({nickname: nickname, content})
+    }).then(function (){
+        var chatWindow = document.getElementById('chat_window');
+        chatWindow.scrollTop = chatWindow.scrollHeight;
     })
 }
 
