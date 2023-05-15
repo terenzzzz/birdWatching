@@ -30,109 +30,18 @@ self.addEventListener('fetch', (event) => {
 
 });
 
-self.addEventListener('message', async function (event) {
-    console.log('Received message:', event.data);
-    if (event.data.action === "syncDataToMongoDB") {
-        try {
-            console.log("try")
-            const result = await syncDataToMongoDB(event.data.data);
-            const commentResult = await syncCommentToMongoDB(event.data.commentData);
-
-            self.clients.claim().then(function () {
-                self.clients.matchAll().then(function (clients) {
-                    clients.forEach(function (client) {
-                        client.postMessage({action: "syncDataResult", result: result,commentResult:commentResult});
-                    });
-                });
-            });
-        } catch (error) {
-            console.error('Error syncing data to MongoDB:', error);
-        }
-    }
-});
-
-
-
-async function syncDataToMongoDB(data) {
-    console.log("syncDataToMongoDB",data)
-
-
-    // 创建一个新的 FormData 对象
-    var formData = new FormData();
-    formData.append("data",JSON.stringify(data))
-
-    // 遍历数组中的每个对象
-    data.forEach(function (obj) {
-        Object.keys(obj).forEach(function (key) {
-            if (key === 'photo') {
-                // 如果属性名是 'photo'，将文件对象作为值添加到 FormData
-                formData.append(key, obj[key]);
-            }
-        });
-    });
-
-    try {
-        const response = await fetch('/syncToMongo', {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to submit form');
-        }
-
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.log('Error submitting form:', error);
-        throw error;
-    }
-}
-
-async function syncCommentToMongoDB(data) {
-    console.log("syncCommentToMongoDB",data)
-
-    try {
-        const response = await fetch('/syncCommentToMongo', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to submit form');
-        }
-
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.log('Error submitting form:', error);
-        throw error;
-    }
-}
-
-self.addEventListener('sync', async (event) => {
+self.addEventListener('sync',  async (event) => {
     console.info('Event: Sync', event);
+
     const sightings = await getSightingFromIndexDB();
     const comments = await getCommentFromIndexDB();
-
-
 
     const result = await syncDataToMongoDB(sightings);
     const commentResult = await syncCommentToMongoDB(comments);
 
-    self.clients.claim().then(function () {
-        self.clients.matchAll().then(function (clients) {
-            clients.forEach(function (client) {
-                client.postMessage({action: "syncDataResult", result: result,commentResult:commentResult});
-            });
-        });
-    });
-
-    console.log("sightings in sync:",sightings)
-    console.log("comments in sync:",comments)
-    console.log("sightings result in sync:",result)
-    console.log("comments result in sync:",commentResult)
+    updateUnsync(result)
+    updateCommentUnsync(commentResult)
+    console.log("Sync Event Finished")
 
 });
 
@@ -210,7 +119,6 @@ async function getCommentFromIndexDB() {
             reject(event.target.error);
         };
         request.onsuccess = function(event) {
-
             const birtWatchingIDB = event.target.result
             const transaction = birtWatchingIDB.transaction(["comment"], "readwrite");
             const commentStore = transaction.objectStore("comment");
@@ -235,6 +143,136 @@ async function getCommentFromIndexDB() {
             };
         }
     })
+}
+
+function updateUnsync (data){
+    // console.log("updateUnsync")
+    console.log("updateUnsyncdata:",data.result)
+
+    const request = indexedDB.open("birdWatching",2);
+    request.onerror = function(event) {
+        reject(event.target.error);
+    };
+    request.onsuccess = function(event) {
+        const birtWatchingIDB = event.target.result
+        const transaction = birtWatchingIDB.transaction(["sighting"], "readwrite")
+        const sightingStore = transaction.objectStore("sighting")
+
+        // 使用游标遍历对象存储空间中的数据
+        var request = sightingStore.openCursor();
+        request.onerror = function (event) {
+            console.error('Failed to open cursor:', event.target.error);
+        };
+        request.onsuccess = function (event) {
+            var cursor = event.target.result;
+
+            if (cursor) {
+                var indexData = cursor.value;
+                if (cursor.value._id == -1) {
+                    // 使用游标的 update() 方法更新对象
+                    var updatedData = {
+                        ...indexData,
+                        _id: data.result[0]._id
+                    };
+                    // 使用游标的 update() 方法更新对象
+                    var updateRequest = cursor.update(updatedData);
+                    data.result.shift()
+
+                    updateRequest.onerror = function (event) {
+                        console.error('Failed to update data:', event.target.error);
+                    };
+                    updateRequest.onsuccess = function (event) {
+                    };
+                }
+                // 继续遍历下一个数据项
+                cursor.continue();
+            }
+        }
+    }
+}
+
+function updateCommentUnsync (data){
+    // console.log("updateUnsync")
+    console.log("updateUnsyncdata:",data.result)
+    const request = indexedDB.open("birdWatching",2);
+    request.onerror = function(event) {
+        reject(event.target.error);
+    };
+    request.onsuccess = function(event) {
+        const birtWatchingIDB = event.target.result
+        const transaction = birtWatchingIDB.transaction(["comment"], "readwrite")
+        const commentStore = transaction.objectStore("comment")
+
+        if (data.result == 200) {
+            // 清除对象存储中的数据
+            const clearRequest = commentStore.clear();
+
+            clearRequest.onerror = function (event) {
+                console.error('Failed to clear data:', event.target.error);
+            };
+
+            clearRequest.onsuccess = function (event) {
+                console.log('Data cleared successfully');
+            };
+        }
+    }
+}
+
+async function syncDataToMongoDB(data) {
+    console.log("syncDataToMongoDB",data)
+
+    // 创建一个新的 FormData 对象
+    var formData = new FormData();
+    formData.append("data",JSON.stringify(data))
+
+    // 遍历数组中的每个对象
+    data.forEach(function (obj) {
+        Object.keys(obj).forEach(function (key) {
+            if (key === 'photo') {
+                // 如果属性名是 'photo'，将文件对象作为值添加到 FormData
+                formData.append(key, obj[key]);
+            }
+        });
+    });
+
+    try {
+        const response = await fetch('/syncToMongo', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to submit form');
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.log('Error submitting form:', error);
+        throw error;
+    }
+}
+
+async function syncCommentToMongoDB(data) {
+    console.log("syncCommentToMongoDB",data)
+
+    try {
+        const response = await fetch('/syncCommentToMongo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to submit form');
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.log('Error submitting form:', error);
+        throw error;
+    }
 }
 
 
