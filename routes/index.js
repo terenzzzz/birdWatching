@@ -10,6 +10,7 @@ const Sighting = require("../models/sightings");
 const Comment = require("../models/comments");
 
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 // storage defines the storage options to be used for file upload with multer
 var storage = multer.diskStorage({
@@ -51,78 +52,86 @@ router.post('/create', upload.single('photo'), function(req, res) {
 
 router.get('/bird/:id', function(req, res) {
     const idBird = req.params.id;
-
-    console.log("idBird:",idBird)
+    console.log(idBird)
 
     if (idBird === ":id") {
         return res.status(400).json({ error: 'Invalid ID' });
     }
 
-    var dbpedia_exist = true;
+    if (ObjectId.isValid(idBird)) {
+        var dbpedia_exist = true;
 
-    try {
-        // Retrieve the sighting object based on the birdId parameter
-        Sighting.findOne({ _id: idBird }, function(err, sighting) {
-            if (err) throw err;
-
-            if (!sighting) {
-                return res.status(404).json({ error: 'Sighting not found' });
-            }
-            var identification = sighting.identification;
-            // Capitalise the first letter and convert the rest to lowercase
-            identification = identification.charAt(0).toUpperCase() + identification.slice(1).toLowerCase();
-            // Check if the identification contains more than one word
-            if (identification.includes(' ')) {
-                identification = identification.replace(/\s/g, '_');
-            }
-
-            Comment.find({ idBird: idBird }, function(err, comments) {
+        try {
+            // Retrieve the sighting object based on the birdId parameter
+            Sighting.findOne({ _id: idBird }, function(err, sighting) {
                 if (err) throw err;
 
-                // The DBpedia resource to retrieve data from
-                const resource = 'http://dbpedia.org/resource/' + identification;
+                if (!sighting) {
+                    return res.status(404).json({ error: 'Sighting not found' });
+                }
+                var identification = sighting.identification;
+                // Capitalise the first letter and convert the rest to lowercase
+                identification = identification.charAt(0).toUpperCase() + identification.slice(1).toLowerCase();
+                // Check if the identification contains more than one word
+                if (identification.includes(' ')) {
+                    identification = identification.replace(/\s/g, '_');
+                }
 
-                // The DBpedia SPARQL endpoint URL
-                const endpointUrl = 'https://dbpedia.org/sparql';
+                Comment.find({ idBird: idBird }, function(err, comments) {
+                    if (err) throw err;
 
-                // The SPARQL query to retrieve data for the given resource
-                const sparqlQuery = `SELECT ?label ?abstract ?thumbnail WHERE { <${resource}> rdfs:label ?label .
+                    // The DBpedia resource to retrieve data from
+                    const resource = 'http://dbpedia.org/resource/' + identification;
+
+                    // The DBpedia SPARQL endpoint URL
+                    const endpointUrl = 'https://dbpedia.org/sparql';
+
+                    // The SPARQL query to retrieve data for the given resource
+                    const sparqlQuery = `SELECT ?label ?abstract ?thumbnail WHERE { <${resource}> rdfs:label ?label .
                   <${resource}> dbo:thumbnail ?thumbnail .
                   <${resource}> dbo:abstract ?abstract .
                   FILTER (langMatches(lang(?label),"en"))
                   FILTER (langMatches(lang(?abstract),"en"))
                 }`;
 
-                // Encode the query as a URL parameter
-                const encodedQuery = encodeURIComponent(sparqlQuery);
-                // Build the URL for the SPARQL query
-                const url = `${endpointUrl}?query=${encodedQuery}&format=json`;
-                // Use fetch to retrieve the data
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        // The results are in the 'data' object
-                        var bindings = data.results.bindings;
-                        var result = JSON.stringify(bindings);
+                    // Encode the query as a URL parameter
+                    const encodedQuery = encodeURIComponent(sparqlQuery);
+                    // Build the URL for the SPARQL query
+                    const url = `${endpointUrl}?query=${encodedQuery}&format=json`;
+                    // Use fetch to retrieve the data
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            // The results are in the 'data' object
+                            var bindings = data.results.bindings;
+                            var result = JSON.stringify(bindings);
 
-                        console.log(bindings)
-                        // Render the bird view with the sighting and comments objects
-                        res.render('bird', { sighting: sighting, comments: comments, label: bindings[0].label.value,
-                            abstract: bindings[0].abstract.value, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:bindings[0].thumbnail.value});
-                    })
-                    .catch(error => {
-                        console.log("Fetch error:", error);
-                        dbpedia_exist = false;
-                        // Render the bird view with the sighting and comments objects
-                        res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist });
-                    });
+                            console.log(bindings)
+                            // Render the bird view with the sighting and comments objects
+                            res.render('bird', { sighting: sighting, comments: comments, label: bindings[0].label.value,
+                                abstract: bindings[0].abstract.value, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:bindings[0].thumbnail.value});
+                        })
+                        .catch(error => {
+                            console.log("Fetch error:", error);
+                            dbpedia_exist = false;
+                            // Render the bird view with the sighting and comments objects
+                            res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist });
+                        });
 
+                });
             });
-        });
 
-    } catch (err) {
-        res.status(400).json({ error: 'Invalid ID' });
+        } catch (err) {
+            res.status(400).json({ error: 'Invalid ID' });
+            // res.render('bird',{ indexId: idBird})
+        }
+    } else {
+        let sighting = JSON.parse(req.query.sighting)
+        console.log(sighting)
+        dbpedia_exist = false;
+        res.render('bird', { sighting: sighting, comments: [], dbpedia_exist: dbpedia_exist });
     }
+
 });
 
 

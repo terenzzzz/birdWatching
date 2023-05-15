@@ -68,6 +68,9 @@ function updateSightings(sightings) {
             photoUrl = '/img/default.png'
         }
 
+        let birdId = (obj._id === -1) ? obj.id : obj._id;
+
+
         var templateString = `<div class="card mt-4">
           <div class="card-body row">
             <div class="col-2">
@@ -80,13 +83,29 @@ function updateSightings(sightings) {
               <p class="m-0 p-0 text-primary">${parseFloat(obj.latitude).toFixed(2)},${parseFloat(obj.longitude).toFixed(2)}</p>
             </div>
             <div class="col-2 d-flex justify-content-center align-items-center">
-              <a href="/bird/${obj._id}"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
+              <a onclick="toDetailHandler('${birdId}')"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
             </div>
           </div>
         </div>`
         // 将 HTML 模板字符串添加到父元素中
         parentDiv.innerHTML += templateString;
     });
+}
+
+async function toDetailHandler(id) {
+    let isMongo = isMongoDBObjectId(id)
+    if (isMongo == false) {
+        let sighting = await getSightingById(id)
+        const queryParams = {sighting: JSON.stringify(sighting)};
+        window.location.href = `/bird/${id}?${new URLSearchParams(queryParams).toString()}`;
+    } else {
+        window.location.href = `/bird/${id}`;
+    }
+}
+
+function isMongoDBObjectId(str) {
+    const pattern = /^[0-9a-fA-F]{24}$/;
+    return pattern.test(str);
 }
 
 async function combineSightings (data) {

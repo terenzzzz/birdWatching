@@ -33,15 +33,15 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('sync',  async (event) => {
     console.info('Event: Sync', event);
 
-    const sightings = await getSightingFromIndexDB();
-    const comments = await getCommentFromIndexDB();
-
-    const result = await syncDataToMongoDB(sightings);
-    const commentResult = await syncCommentToMongoDB(comments);
-
-    updateUnsync(result)
-    updateCommentUnsync(commentResult)
-    console.log("Sync Event Finished")
+    // const sightings = await getSightingFromIndexDB();
+    // const comments = await getCommentFromIndexDB();
+    //
+    // const result = await syncDataToMongoDB(sightings);
+    // const commentResult = await syncCommentToMongoDB(comments);
+    //
+    // updateUnsync(result)
+    // updateCommentUnsync(commentResult)
+    // console.log("Sync Event Finished")
 
 });
 

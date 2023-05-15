@@ -144,6 +144,25 @@ function getSighting() {
     });
 }
 
+function getSightingById(id) {
+    let idBird = parseInt(id)
+    return new Promise((resolve, reject) => {
+        const birtWatchingIDB = requestIndexedDB.result;
+        const transaction = birtWatchingIDB.transaction(["sighting"], "readwrite");
+        const sightingStore = transaction.objectStore("sighting");
+
+        const request = sightingStore.get(idBird);
+        request.onsuccess = (event) => {
+            const data = event.target.result;
+            resolve(data);
+        };
+
+        request.onerror = (event) => {
+            reject(event.target.error);
+        };
+    });
+}
+
 function getComment() {
     return new Promise((resolve, reject) => {
         const birtWatchingIDB = requestIndexedDB.result;
