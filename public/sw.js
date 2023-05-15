@@ -30,32 +30,196 @@ self.addEventListener('fetch', (event) => {
 
 });
 
-self.addEventListener('message', async function (event) {
-    console.log('Received message:', event.data);
-    if (event.data.action === "syncDataToMongoDB") {
-        try {
-            console.log("try")
-            const result = await syncDataToMongoDB(event.data.data);
-            const commentResult = await syncCommentToMongoDB(event.data.commentData);
+self.addEventListener('sync',  async (event) => {
+    console.info('Event: Sync', event);
 
-            self.clients.claim().then(function () {
-                self.clients.matchAll().then(function (clients) {
-                    clients.forEach(function (client) {
-                        client.postMessage({action: "syncDataResult", result: result,commentResult:commentResult});
-                    });
-                });
-            });
-        } catch (error) {
-            console.error('Error syncing data to MongoDB:', error);
-        }
-    }
+    const sightings = await getSightingFromIndexDB();
+    const comments = await getCommentFromIndexDB();
+
+    const result = await syncDataToMongoDB(sightings);
+    const commentResult = await syncCommentToMongoDB(comments);
+
+    updateUnsync(result)
+    updateCommentUnsync(commentResult)
+    console.log("Sync Event Finished")
+
 });
 
 
+async function networkThenCache(event) {
+    try {
+        const networkResponse = await fetch(event.request);
+        console.log('Calling network: ' + event.request.url);
+        // Store the network response in a cache for future use
+
+        const cache = await caches.open(staticCacheName);
+        if (event.request.method === 'GET') {
+            await cache.put(event.request, networkResponse.clone());
+        }
+        return networkResponse;
+    } catch (error) {
+        console.info('Failed to fetch from network:', error);
+        // If the network request fails, try to find the corresponding resource from the cache
+        const cache = await caches.open(staticCacheName);
+        if (event.request.method === 'GET') {
+            const cachedResponse = await cache.match(event.request);
+            if (cachedResponse) {
+                console.log('Serving From Cache: ' + event.request.url);
+                return cachedResponse;
+            }
+        }
+        return new Response('Offline Page');
+    }
+}
+
+
+async function getSightingFromIndexDB() {
+    return new Promise(function(resolve, reject) {
+        const request = indexedDB.open("birdWatching",2);
+        request.onerror = function(event) {
+            reject(event.target.error);
+        };
+        request.onsuccess = function(event) {
+
+
+            const birtWatchingIDB = event.target.result
+            const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
+            const sightingStore = transaction.objectStore("sighting")
+
+
+            const cursorRequest = sightingStore.openCursor();
+            const result = []; // 存储查询结果的数组
+
+            cursorRequest.onsuccess = function(event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const data = cursor.value;
+                    if (data._id == -1){
+                        result.push(data); // 将对象数据添加到数组中
+                    }
+                    cursor.continue();
+                } else {
+                    // 遍历完所有对象，使用 Promise 的 resolve 返回结果
+                    resolve(result);
+                }
+            };
+
+            cursorRequest.onerror = function(event) {
+                // 处理错误，使用 Promise 的 reject 返回错误信息
+                reject(event.target.error);
+            };
+        }
+    })
+}
+
+async function getCommentFromIndexDB() {
+    return new Promise(function(resolve, reject) {
+        const request = indexedDB.open("birdWatching",2);
+        request.onerror = function(event) {
+            reject(event.target.error);
+        };
+        request.onsuccess = function(event) {
+            const birtWatchingIDB = event.target.result
+            const transaction = birtWatchingIDB.transaction(["comment"], "readwrite");
+            const commentStore = transaction.objectStore("comment");
+            const cursorRequest = commentStore.openCursor();
+            const result = []; // 存储查询结果的数组
+
+            cursorRequest.onsuccess = function (event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const data = cursor.value;
+                    result.push(data)
+                    cursor.continue();
+                } else {
+                    // 遍历完所有对象，使用 Promise 的 resolve 返回结果
+                    resolve(result);
+                }
+            };
+
+            cursorRequest.onerror = function (event) {
+                // 处理错误，使用 Promise 的 reject 返回错误信息
+                reject(event.target.error);
+            };
+        }
+    })
+}
+
+function updateUnsync (data){
+    // console.log("updateUnsync")
+    console.log("updateUnsyncdata:",data.result)
+
+    const request = indexedDB.open("birdWatching",2);
+    request.onerror = function(event) {
+        reject(event.target.error);
+    };
+    request.onsuccess = function(event) {
+        const birtWatchingIDB = event.target.result
+        const transaction = birtWatchingIDB.transaction(["sighting"], "readwrite")
+        const sightingStore = transaction.objectStore("sighting")
+
+        // 使用游标遍历对象存储空间中的数据
+        var request = sightingStore.openCursor();
+        request.onerror = function (event) {
+            console.error('Failed to open cursor:', event.target.error);
+        };
+        request.onsuccess = function (event) {
+            var cursor = event.target.result;
+
+            if (cursor) {
+                var indexData = cursor.value;
+                if (cursor.value._id == -1) {
+                    // 使用游标的 update() 方法更新对象
+                    var updatedData = {
+                        ...indexData,
+                        _id: data.result[0]._id
+                    };
+                    // 使用游标的 update() 方法更新对象
+                    var updateRequest = cursor.update(updatedData);
+                    data.result.shift()
+
+                    updateRequest.onerror = function (event) {
+                        console.error('Failed to update data:', event.target.error);
+                    };
+                    updateRequest.onsuccess = function (event) {
+                    };
+                }
+                // 继续遍历下一个数据项
+                cursor.continue();
+            }
+        }
+    }
+}
+
+function updateCommentUnsync (data){
+    // console.log("updateUnsync")
+    console.log("updateUnsyncdata:",data.result)
+    const request = indexedDB.open("birdWatching",2);
+    request.onerror = function(event) {
+        reject(event.target.error);
+    };
+    request.onsuccess = function(event) {
+        const birtWatchingIDB = event.target.result
+        const transaction = birtWatchingIDB.transaction(["comment"], "readwrite")
+        const commentStore = transaction.objectStore("comment")
+
+        if (data.result == 200) {
+            // 清除对象存储中的数据
+            const clearRequest = commentStore.clear();
+
+            clearRequest.onerror = function (event) {
+                console.error('Failed to clear data:', event.target.error);
+            };
+
+            clearRequest.onsuccess = function (event) {
+                console.log('Data cleared successfully');
+            };
+        }
+    }
+}
 
 async function syncDataToMongoDB(data) {
     console.log("syncDataToMongoDB",data)
-
 
     // 创建一个新的 FormData 对象
     var formData = new FormData();
@@ -111,57 +275,30 @@ async function syncCommentToMongoDB(data) {
     }
 }
 
-self.addEventListener('sync', (event) => {
-    console.info('Event: Sync', event);
-});
 
-
-async function networkThenCache(event) {
-    try {
-        const networkResponse = await fetch(event.request);
-        console.log('Calling network: ' + event.request.url);
-        // Store the network response in a cache for future use
-
-        const cache = await caches.open(staticCacheName);
-        if (event.request.method === 'GET') {
-            await cache.put(event.request, networkResponse.clone());
-        }
-        return networkResponse;
-    } catch (error) {
-        console.info('Failed to fetch from network:', error);
-        // If the network request fails, try to find the corresponding resource from the cache
-        const cache = await caches.open(staticCacheName);
-        if (event.request.method === 'GET') {
-            const cachedResponse = await cache.match(event.request);
-            if (cachedResponse) {
-                console.log('Serving From Cache: ' + event.request.url);
-                return cachedResponse;
-            }
-        }
-        return new Response('Offline Page');
-    }
-}
-
-
-
-
-// 从 IndexedDB 中读取离线数据
-
-
-// async function cacheThenNetwork(event) {
-//     const cache = await caches.open(staticCacheName);
-//     const cachedResponse = await cache.match(event.request); // 返回promise对象
-//     if (cachedResponse) {
-//         console.log('Serving From Cache: ' + event.request.url);
-//         return cachedResponse;
-//     }
+// async function getDataFromIndexDB() {
+//     return new Promise(function(resolve, reject) {
+//         const request = indexedDB.open("birdWatching",2);
+//         request.onerror = function(event) {
+//             reject(event.target.error);
+//         };
+//         request.onsuccess = function(event) {
 //
-//     const networkResponse = await fetch(event.request);
-//     console.log('Calling network: ' + event.request.url);
-//     return networkResponse;
+//
+//             const birtWatchingIDB = event.target.result
+//             const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
+//             const sightingStore = transaction.objectStore("sighting")
+//
+//
+//             const getDataRequest = sightingStore.getAll();
+//             getDataRequest.onerror = function(event) {
+//                 reject(event.target.error);
+//             };
+//             getDataRequest.onsuccess = function(event) {
+//                 resolve(event.target.result);
+//             };
+//         };
+//     });
 // }
-
-
-
 
 
