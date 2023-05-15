@@ -10,7 +10,7 @@ const filesToCache = [
     "img/onBoarding.png",
     "/create",
     "/index",
-    "/bird/:id",
+    // "/bird/:id",
     "/"
 ];
 const staticCacheName = 'birdWatching';
@@ -113,6 +113,8 @@ async function syncCommentToMongoDB(data) {
 
 self.addEventListener('sync', (event) => {
     console.info('Event: Sync', event);
+
+
 });
 
 
