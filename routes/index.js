@@ -59,6 +59,7 @@ router.get('/bird/:id', function(req, res) {
     }
 
     var dbpedia_exist = true;
+
     try {
         // Retrieve the sighting object based on the birdId parameter
         Sighting.findOne({ _id: idBird }, function(err, sighting) {
@@ -67,12 +68,19 @@ router.get('/bird/:id', function(req, res) {
             if (!sighting) {
                 return res.status(404).json({ error: 'Sighting not found' });
             }
+            var identification = sighting.identification;
+            // Capitalise the first letter and convert the rest to lowercase
+            identification = identification.charAt(0).toUpperCase() + identification.slice(1).toLowerCase();
+            // Check if the identification contains more than one word
+            if (identification.includes(' ')) {
+                identification = identification.replace(/\s/g, '_');
+            }
 
             Comment.find({ idBird: idBird }, function(err, comments) {
                 if (err) throw err;
 
                 // The DBpedia resource to retrieve data from
-                const resource = 'http://dbpedia.org/resource/' + sighting.identification;
+                const resource = 'http://dbpedia.org/resource/' + identification;
 
                 // The DBpedia SPARQL endpoint URL
                 const endpointUrl = 'https://dbpedia.org/sparql';
