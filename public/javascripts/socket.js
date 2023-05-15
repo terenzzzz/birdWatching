@@ -20,6 +20,7 @@ function init() {
             hideLoginInterface(room, userId);
         } else {
             // notifies that someone has joined the room
+            console.log("writeOnHistory on socket joined:")
             writeOnHistory('<b>'+userId+'</b>' + ' has joined the chat ');
 
         }
@@ -29,6 +30,7 @@ function init() {
     socket.on('chat', function (room, userId, chatText) {
         let who = userId
         if (userId === name) who = 'Me';
+        console.log("writeOnHistory on socket Chat:")
         writeOnHistory('<b>' + who + ':</b> ' + chatText);
     });
 

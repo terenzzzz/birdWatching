@@ -1,3 +1,9 @@
+window.onload = async function () {
+    console.log("bird.onload")
+    registerSync();
+};
+
+
 
 const connectButton = document.getElementById('comment_btn');
 const sendButton = document.getElementById('chat_send');
@@ -60,3 +66,19 @@ identification_btn.addEventListener("click", function() {
     location_txt.style.display="none";
     comment_txt.style.display="none";
 });
+
+function registerSync() {
+    new Promise(function (resolve, reject) {
+        Notification.requestPermission(function (result) {
+            resolve();
+        })
+    }).then(function () {
+        return navigator.serviceWorker.ready;
+    }).then(async function (reg) {
+        return reg.sync.register('sync-tag');
+    }).then(function () {
+        console.info('Sync registered');
+    }).catch(function (err) {
+        console.error('Failed to register sync:', err.message);
+    });
+}
