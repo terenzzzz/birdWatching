@@ -111,6 +111,8 @@
       <h5 class="mb-0">Information from DBPedia</h5>
       <div id="identification_txt" class="p-3 rounded shadow-sm bg-light">
         <% if (dbpedia_exist) { %>
+          <img src="<%= thumbnail %>" class="img-thumbnail" />
+          <br>
           <p class="mb-0"><strong>Scientific name</strong>: <%= label %></p>
           <br>
           <p class="mb-0"><strong>Description</strong>: <%= abstract %></p>

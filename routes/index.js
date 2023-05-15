@@ -86,7 +86,8 @@ router.get('/bird/:id', function(req, res) {
                 const endpointUrl = 'https://dbpedia.org/sparql';
 
                 // The SPARQL query to retrieve data for the given resource
-                const sparqlQuery = `SELECT ?label ?abstract WHERE { <${resource}> rdfs:label ?label .
+                const sparqlQuery = `SELECT ?label ?abstract ?thumbnail WHERE { <${resource}> rdfs:label ?label .
+                  <${resource}> dbo:thumbnail ?thumbnail .
                   <${resource}> dbo:abstract ?abstract .
                   FILTER (langMatches(lang(?label),"en"))
                   FILTER (langMatches(lang(?abstract),"en"))
@@ -103,8 +104,11 @@ router.get('/bird/:id', function(req, res) {
                         // The results are in the 'data' object
                         var bindings = data.results.bindings;
                         var result = JSON.stringify(bindings);
+
+                        console.log(bindings)
                         // Render the bird view with the sighting and comments objects
-                        res.render('bird', { sighting: sighting, comments: comments, label: bindings[0].label.value, abstract: bindings[0].abstract.value, resource: resource, dbpedia_exist: dbpedia_exist });
+                        res.render('bird', { sighting: sighting, comments: comments, label: bindings[0].label.value,
+                            abstract: bindings[0].abstract.value, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:bindings[0].thumbnail.value});
                     })
                     .catch(error => {
                         console.log("Fetch error:", error);
