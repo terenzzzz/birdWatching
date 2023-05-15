@@ -59,17 +59,20 @@ function updateSightings(sightings) {
     var parentDiv = document.getElementById('sighting-container');
 
     parentDiv.innerHTML = ""
+    
 
     sightings.forEach(function (obj) {
-        let photoUrl
-        if (typeof obj.photo == "string"){
+        if (typeof obj.photo === "string") {
             photoUrl = obj.photo ? obj.photo.replace('public', '') : '/img/default.png';
-        }else{
-            photoUrl = '/img/default.png'
+        } else if (obj.photo instanceof File) {
+            // 创建一个URL对象来获取文件的临时URL
+            var photoUrl = URL.createObjectURL(obj.photo);
+        } else {
+            photoUrl = '/img/default.png';
         }
 
         let birdId = (obj._id === -1) ? obj.id : obj._id;
-
+        let syncStr = (obj._id === -1) ? "Sync Needed" : "";
 
         var templateString = `<div class="card mt-4">
           <div class="card-body row">
@@ -77,13 +80,13 @@ function updateSightings(sightings) {
               <img src="${photoUrl}" class="img-thumbnail">
             </div>
             <div class="col-8">
-              <h1>${obj.identification}</h1>
+              <h1>${obj.identification}<span class="badge rounded-pill text-bg-secondary fs-6 ms-1 " >${syncStr}</span></h1>
               <p class="m-0 p-0">Seen on ${obj.dateTime}</p>
               <p class="m-0 p-0">By ${obj.nickName}</p>
               <p class="m-0 p-0 text-primary">${parseFloat(obj.latitude).toFixed(2)},${parseFloat(obj.longitude).toFixed(2)}</p>
             </div>
             <div class="col-2 d-flex justify-content-center align-items-center">
-              <a onclick="toDetailHandler('${birdId}')"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
+              <a onclick="toDetailHandler('${birdId}','${photoUrl}')"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
             </div>
           </div>
         </div>`
@@ -92,11 +95,18 @@ function updateSightings(sightings) {
     });
 }
 
-async function toDetailHandler(id) {
+async function toDetailHandler(id,path) {
     let isMongo = isMongoDBObjectId(id)
     if (isMongo == false) {
         let sighting = await getSightingById(id)
-        const queryParams = {sighting: JSON.stringify(sighting)};
+        console.log(sighting)
+
+        const queryParams = {
+            sighting: JSON.stringify(sighting),
+            photo: path
+        };
+
+        // 在这里可以使用 queryParams 进行进一步处理或传递给其他地方
         window.location.href = `/bird/${id}?${new URLSearchParams(queryParams).toString()}`;
     } else {
         window.location.href = `/bird/${id}`;

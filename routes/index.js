@@ -8,6 +8,8 @@ var index = require('../controller/index');
 var multer = require('multer');
 const Sighting = require("../models/sightings");
 const Comment = require("../models/comments");
+const fs = require('fs');
+const formidable = require('formidable');
 
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -115,7 +117,7 @@ router.get('/bird/:id', function(req, res) {
                             console.log("Fetch error:", error);
                             dbpedia_exist = false;
                             // Render the bird view with the sighting and comments objects
-                            res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist });
+                            res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist});
                         });
 
                 });
@@ -127,9 +129,16 @@ router.get('/bird/:id', function(req, res) {
         }
     } else {
         let sighting = JSON.parse(req.query.sighting)
-        console.log(sighting)
+        let photo = req.query.photo
+
+        console.log(photo)
+
+        sighting.photo = photo
+
+        console.log("Parsed Sighting:", sighting)
         dbpedia_exist = false;
         res.render('bird', { sighting: sighting, comments: [], dbpedia_exist: dbpedia_exist });
+
     }
 
 });
