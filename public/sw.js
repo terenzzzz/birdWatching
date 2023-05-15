@@ -10,7 +10,7 @@ const filesToCache = [
     "img/onBoarding.png",
     "/create",
     "/index",
-    "/bird/:id",
+    //"/bird/:id",
     "/"
 ];
 const staticCacheName = 'birdWatching';

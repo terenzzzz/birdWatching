@@ -107,7 +107,23 @@
       <div id="identification_txt" class="p-3 rounded shadow-sm bg-light">
         <p class="mb-0"><%=sighting.identification%></p>
       </div>
+      <br>
+      <h5 class="mb-0">Information from DBPedia</h5>
+      <div id="identification_txt" class="p-3 rounded shadow-sm bg-light">
+        <% if (dbpedia_exist) { %>
+          <p class="mb-0"><strong>Scientific name</strong>: <%= label %></p>
+          <br>
+          <p class="mb-0"><strong>Description</strong>: <%= abstract %></p>
+          <br>
+          <p class="mb-0"><strong>URI</strong>: <a href="<%= resource %>"><%= resource %></a></p>
+        <% } else { %>
+          <p class="mb-0">No information available from DBPedia for this sighting</p>
+        <% } %>
+      </div>
+
     </div>
+
+
     <div class="container-lg">
       <div class="py-4 px-4">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -173,8 +189,8 @@
 
   function initMap() {
 
-    let lat = <%=sighting.latitude%>;
-    let lng =  <%=sighting.longitude%>;
+    let lat =<%=sighting.latitude%>;
+    let lng = <%=sighting.longitude%>;
     let center ={lat: lat, lng: lng}
     let map = new google.maps.Map(document.getElementById('map'), {
       zoom: 9,

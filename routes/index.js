@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const fetch = require('node-fetch');
 var bodyParser= require("body-parser");
 var sighting = require('../controller/sightings');
 var comment = require('../controller/comment');
@@ -57,6 +58,7 @@ router.get('/bird/:id', function(req, res) {
         return res.status(400).json({ error: 'Invalid ID' });
     }
 
+    var dbpedia_exist = true;
     try {
         // Retrieve the sighting object based on the birdId parameter
         Sighting.findOne({ _id: idBird }, function(err, sighting) {
@@ -69,8 +71,40 @@ router.get('/bird/:id', function(req, res) {
             Comment.find({ idBird: idBird }, function(err, comments) {
                 if (err) throw err;
 
-                // Render the bird view with the sighting and comments objects
-                res.render('bird', { sighting: sighting, comments: comments });
+                // The DBpedia resource to retrieve data from
+                const resource = 'http://dbpedia.org/resource/' + sighting.identification;
+
+                // The DBpedia SPARQL endpoint URL
+                const endpointUrl = 'https://dbpedia.org/sparql';
+
+                // The SPARQL query to retrieve data for the given resource
+                const sparqlQuery = `SELECT ?label ?abstract WHERE { <${resource}> rdfs:label ?label .
+                  <${resource}> dbo:abstract ?abstract .
+                  FILTER (langMatches(lang(?label),"en"))
+                  FILTER (langMatches(lang(?abstract),"en"))
+                }`;
+
+                // Encode the query as a URL parameter
+                const encodedQuery = encodeURIComponent(sparqlQuery);
+                // Build the URL for the SPARQL query
+                const url = `${endpointUrl}?query=${encodedQuery}&format=json`;
+                // Use fetch to retrieve the data
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        // The results are in the 'data' object
+                        var bindings = data.results.bindings;
+                        var result = JSON.stringify(bindings);
+                        // Render the bird view with the sighting and comments objects
+                        res.render('bird', { sighting: sighting, comments: comments, label: bindings[0].label.value, abstract: bindings[0].abstract.value, resource: resource, dbpedia_exist: dbpedia_exist });
+                    })
+                    .catch(error => {
+                        console.log("Fetch error:", error);
+                        dbpedia_exist = false;
+                        // Render the bird view with the sighting and comments objects
+                        res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist });
+                    });
+
             });
         });
 
