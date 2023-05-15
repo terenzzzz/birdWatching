@@ -213,19 +213,19 @@ function registerSync() {
         return navigator.serviceWorker.ready;
     }).then(async function (reg) {
         //here register your sync with a tagname and return it
-        try {
-            const sightingResult = await getNotSync();
-            const commentResult = await getNotSyncComment();
-            reg.active.postMessage({
-                action: 'syncDataToMongoDB',
-                data: sightingResult,
-                commentData: commentResult
-            })
-            console.log("postMessage in action syncDataToMongoDB data:",commentResult)
-        } catch (error) {
-            // 处理错误
-            console.error('Error occurred:', error);
-        }
+        // try {
+        //     const sightingResult = await getNotSync();
+        //     const commentResult = await getNotSyncComment();
+        //     reg.active.postMessage({
+        //         action: 'syncDataToMongoDB',
+        //         data: sightingResult,
+        //         commentData: commentResult
+        //     })
+        //     console.log("postMessage in action syncDataToMongoDB data:",commentResult)
+        // } catch (error) {
+        //     // 处理错误
+        //     console.error('Error occurred:', error);
+        // }
         return reg.sync.register('sync-tag');
 
     }).then(function () {

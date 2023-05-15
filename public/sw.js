@@ -111,9 +111,28 @@ async function syncCommentToMongoDB(data) {
     }
 }
 
-self.addEventListener('sync', (event) => {
+self.addEventListener('sync', async (event) => {
     console.info('Event: Sync', event);
+    const sightings = await getSightingFromIndexDB();
+    const comments = await getCommentFromIndexDB();
 
+
+
+    const result = await syncDataToMongoDB(sightings);
+    const commentResult = await syncCommentToMongoDB(comments);
+
+    self.clients.claim().then(function () {
+        self.clients.matchAll().then(function (clients) {
+            clients.forEach(function (client) {
+                client.postMessage({action: "syncDataResult", result: result,commentResult:commentResult});
+            });
+        });
+    });
+
+    console.log("sightings in sync:",sightings)
+    console.log("comments in sync:",comments)
+    console.log("sightings result in sync:",result)
+    console.log("comments result in sync:",commentResult)
 
 });
 
@@ -145,25 +164,103 @@ async function networkThenCache(event) {
 }
 
 
+async function getSightingFromIndexDB() {
+    return new Promise(function(resolve, reject) {
+        const request = indexedDB.open("birdWatching",2);
+        request.onerror = function(event) {
+            reject(event.target.error);
+        };
+        request.onsuccess = function(event) {
 
 
-// 从 IndexedDB 中读取离线数据
+            const birtWatchingIDB = event.target.result
+            const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
+            const sightingStore = transaction.objectStore("sighting")
 
 
-// async function cacheThenNetwork(event) {
-//     const cache = await caches.open(staticCacheName);
-//     const cachedResponse = await cache.match(event.request); // 返回promise对象
-//     if (cachedResponse) {
-//         console.log('Serving From Cache: ' + event.request.url);
-//         return cachedResponse;
-//     }
+            const cursorRequest = sightingStore.openCursor();
+            const result = []; // 存储查询结果的数组
+
+            cursorRequest.onsuccess = function(event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const data = cursor.value;
+                    if (data._id == -1){
+                        result.push(data); // 将对象数据添加到数组中
+                    }
+                    cursor.continue();
+                } else {
+                    // 遍历完所有对象，使用 Promise 的 resolve 返回结果
+                    resolve(result);
+                }
+            };
+
+            cursorRequest.onerror = function(event) {
+                // 处理错误，使用 Promise 的 reject 返回错误信息
+                reject(event.target.error);
+            };
+        }
+    })
+}
+
+async function getCommentFromIndexDB() {
+    return new Promise(function(resolve, reject) {
+        const request = indexedDB.open("birdWatching",2);
+        request.onerror = function(event) {
+            reject(event.target.error);
+        };
+        request.onsuccess = function(event) {
+
+            const birtWatchingIDB = event.target.result
+            const transaction = birtWatchingIDB.transaction(["comment"], "readwrite");
+            const commentStore = transaction.objectStore("comment");
+            const cursorRequest = commentStore.openCursor();
+            const result = []; // 存储查询结果的数组
+
+            cursorRequest.onsuccess = function (event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const data = cursor.value;
+                    result.push(data)
+                    cursor.continue();
+                } else {
+                    // 遍历完所有对象，使用 Promise 的 resolve 返回结果
+                    resolve(result);
+                }
+            };
+
+            cursorRequest.onerror = function (event) {
+                // 处理错误，使用 Promise 的 reject 返回错误信息
+                reject(event.target.error);
+            };
+        }
+    })
+}
+
+
+// async function getDataFromIndexDB() {
+//     return new Promise(function(resolve, reject) {
+//         const request = indexedDB.open("birdWatching",2);
+//         request.onerror = function(event) {
+//             reject(event.target.error);
+//         };
+//         request.onsuccess = function(event) {
 //
-//     const networkResponse = await fetch(event.request);
-//     console.log('Calling network: ' + event.request.url);
-//     return networkResponse;
+//
+//             const birtWatchingIDB = event.target.result
+//             const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
+//             const sightingStore = transaction.objectStore("sighting")
+//
+//
+//             const getDataRequest = sightingStore.getAll();
+//             getDataRequest.onerror = function(event) {
+//                 reject(event.target.error);
+//             };
+//             getDataRequest.onsuccess = function(event) {
+//                 resolve(event.target.result);
+//             };
+//         };
+//     });
 // }
-
-
-
 
 
