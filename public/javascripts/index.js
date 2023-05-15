@@ -129,6 +129,11 @@ async function getNotSyncComment() {
 }
 
 function sortByDate() {
+    appendAlert('Sighting Sorted By Date!', 'success')
+    setTimeout(function() {
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        alertPlaceholder.style.display = 'none';
+    }, 2000);
     let sorted = allSightings.sort(function (a, b) {
         let dateA = new Date(a.dateTime.split('-').reverse().join('-'));
         let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
@@ -137,7 +142,12 @@ function sortByDate() {
     updateSightings(sorted)
 }
 
-async function sortByIdntification() {
+async function sortByIdentification() {
+    appendAlert('Sighting Sorted By Identification!', 'success')
+    setTimeout(function() {
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        alertPlaceholder.style.display = 'none';
+    }, 2000);
     var unknowList = []
     var elseList = []
 
@@ -168,6 +178,11 @@ async function sortByIdntification() {
 }
 
 function sortByLocation(){
+    appendAlert('Sighting Sorted By Location!', 'success')
+    setTimeout(function() {
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        alertPlaceholder.style.display = 'none';
+    }, 2000);
     if (navigator.geolocation) {
         // Get Current Location
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -220,4 +235,17 @@ function registerSync() {
     });
 }
 
+const appendAlert = (message, type) => {
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+    alertPlaceholder.innerHTML = ""
+    alertPlaceholder.style.display = 'block'
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = [
+        `<div class="alert alert-${type} alert-dismissible fixed-top d-block" role="alert">`,
+        `   <div>${message}</div>`,
+        '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+        '</div>'
+    ].join('')
+    alertPlaceholder.append(wrapper)
+}
 

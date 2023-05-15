@@ -23,7 +23,7 @@
     <!--    Sort Btn-->
     <div class="row">
       <div class="btn-group col-4">
-        <button type="button" class="btn btn-secondary" onclick="sortByIdntification(<%=JSON.stringify(sightings)%>)">
+        <button type="button" class="btn btn-secondary" onclick="sortByIdentification(<%=JSON.stringify(sightings)%>)">
           Identification
         </button>
       </div>
@@ -39,6 +39,6 @@
       </div>
     </div>
     <div id="sighting-container" data-sightings="<%=JSON.stringify(sightings)%>"></div>
-
+    <div id="liveAlertPlaceholder"></div>
   </body>
 </html>

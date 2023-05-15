@@ -38,18 +38,6 @@ function init() {
 
 
 /**
- * called when the Send button is pressed. It gets the text to send from the interface
- * and sends the message via  socket
- */
-function sendChatText() {
-    console.log("sendChatText触发")
-    let chatText = document.getElementById('chat_input').value;
-    if (chatText != "" || chatText == null) {
-        socket.emit('chat', roomNo, name, chatText);
-    }
-}
-
-/**
  * used to connect to a room. It gets the username and room number from the
  * interface
  */
@@ -91,30 +79,55 @@ function hideLoginInterface(room, userId) {
     document.getElementById('chat_interface').style.display = 'block';
 }
 
+/**
+ * called when the Send button is pressed. It gets the text to send from the interface
+ * and sends the message via  socket
+ */
+// function sendChatText() {
+//     console.log("sendChatText触发")
+//     let chatText = document.getElementById('chat_input').value;
+//     if (chatText != "" || chatText == null) {
+//         socket.emit('chat', roomNo, name, chatText);
+//         writeOnHistory('<b>' + "Me" + ':</b> ' + chatText.content);
+//     }
+// }
+
 function sendComment() {
     console.log("sendComment触发")
     const nickname =sessionStorage.getItem("nickName");
-    const content = document.getElementById("chat_input").value;;
+    const content = document.getElementById("chat_input").value;
     const roomId = document.getElementById('comment_btn').value;
-    if (navigator.onLine) {
-        // 在线状态，发送请求
-        fetch(`/bird/${roomId}`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({nickname: nickname, content})
-        })
-        .catch(function() {
-            console.log("Comment Add to Mongo Failed, calling insertComment");
+
+    if (content.trim() === '') {
+        appendAlert('Please Filed in Your Comment First!', 'warning')
+        // 设置三秒后隐藏alert
+        setTimeout(function() {
+            alertPlaceholder.style.display = 'none';
+        }, 3000);
+    }else {
+        if (navigator.onLine) {
+            // 在线状态，发送请求
+            socket.emit('chat', roomNo, name, content);
+            fetch(`/bird/${roomId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nickname: nickname, content})
+            })
+                .catch(function() {
+                    console.log("Comment Add to Mongo Failed, calling insertComment");
+                    insertComment(JSON.stringify({nickname: nickname, content}), roomId);
+                })
+                .then(function() {
+                    console.log("fetch 完成");
+                });
+        } else {
+            // 离线状态，调用 insertComment
+            console.log("离线状态，调用 insertComment");
             insertComment(JSON.stringify({nickname: nickname, content}), roomId);
-        })
-        .then(function() {
             console.log("fetch 完成");
-        });
-    } else {
-        // 离线状态，调用 insertComment
-        console.log("离线状态，调用 insertComment");
-        insertComment(JSON.stringify({nickname: nickname, content}), roomId);
-        console.log("fetch 完成");
+        }
+        writeOnHistory('<b>' + "Me" + ':</b> ' + content);
     }
+
 }
 

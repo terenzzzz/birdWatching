@@ -47,7 +47,6 @@ function insertComment (data,id){
     const addRequest = commentStore.add(comment)
     addRequest.onsuccess = (event) => {
         console.log("New Comment added to database with id:", event.target.result);
-        writeOnHistory('<b>' + "Me" + ':</b> ' + parsedData.content);
     };
     addRequest.onerror = (event) => {
         console.error("Error Comment new sighting to database:", event.target.error)
