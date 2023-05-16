@@ -104,7 +104,9 @@ router.get('/bird/:id', function(req, res) {
                 // Use SparqlEndpointFetcher() to retrieve the data
                 myFetcher.fetchBindings(endpointUrl, sparqlQuery)
                     .then(bindingsStream => {
+                        let dataReceived = false; // Flag to track if data was received
                         bindingsStream.on('data', (bindings) =>{
+                            dataReceived = true; // Set the flag to true when data is received
                             let abstractValue = bindings.abstract.value;
                             let thumbnailValue = bindings.thumbnail.value;
                             let labelValue = bindings.label.value;
@@ -113,14 +115,17 @@ router.get('/bird/:id', function(req, res) {
                                 abstract: abstractValue, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:thumbnailValue});
                         });
 
+                        bindingsStream.on('end', () => {
+                            if (!dataReceived) {
+                                dbpedia_exist = false;
+                                // Render the bird view with the sighting and comments objects
+                                res.render('bird', {
+                                    sighting: sighting,
+                                    comments: comments,
+                                    dbpedia_exist: dbpedia_exist});
+                            }
+                        });
                     })
-                    .catch(error => {
-                        // Handle any errors that occur during the fetch or streaming process
-                        dbpedia_exist = false;
-                        // Render the bird view with the sighting and comments objects
-                        res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist});
-                    });
-
                 });
             });
 
