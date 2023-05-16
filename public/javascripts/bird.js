@@ -2,7 +2,55 @@ window.onload = async function () {
     console.log("bird.onload")
     registerSync();
     identification_txt.style.display="block";
+
+    const url = new URL(window.location.href);
+
+        // 获取 URL 查询参数
+    const searchParams = new URLSearchParams(url.search);
+
+        // 获取 id 参数的值
+    const idBird = searchParams.get('id');
+    console.log("idBird",idBird)
+
+    if (!isMongoDBObjectId(idBird)){
+        try{
+            const sighting = await getSightingById(idBird)
+            console.log("sightingggggg:",sighting)
+
+            let thumbnailElement = document.getElementById("thumbnail")
+            thumbnailElement.src = URL.createObjectURL(sighting.photo)
+
+            const buttonElement = document.getElementById('comment_btn');
+            buttonElement.value = sighting.id;
+
+            const descriptionElement = document.getElementById('description');
+            descriptionElement.textContent  = sighting.description;
+
+            const identificationElement = document.getElementById('identification');
+            identificationElement.textContent  = sighting.identification;
+
+            const nickNameElement = document.getElementById('nickName');
+            nickNameElement.textContent  = `Created by: ${sighting.nickName}`;
+
+            const dateTimeElement = document.getElementById('dateTime');
+            dateTimeElement.textContent  = `Seen on: ${sighting.dateTime}`;
+
+            const locationElement = document.getElementById('location');
+            locationElement.textContent  = `${parseFloat(sighting.latitude).toFixed(2)},${parseFloat(sighting.longitude).toFixed(2)}`;
+
+            initMapOffline(sighting.latitude,sighting.longitude)
+        }catch (err){
+            console.log(err)
+        }
+
+    }
+
 };
+
+function isMongoDBObjectId(str) {
+    const pattern = /^[0-9a-fA-F]{24}$/;
+    return pattern.test(str);
+}
 
 
 
@@ -81,6 +129,20 @@ const appendAlert = (message, type) => {
     ].join('')
 
     alertPlaceholder.append(wrapper)
+}
+
+function initMapOffline(latitude,longitude) {
+    let center ={lat: parseFloat(latitude),lng: parseFloat(longitude)}
+    let map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 9,
+        center: center,
+        draggable: true
+    });
+    var marker = new google.maps.Marker({
+        position: center,
+        map: map,
+        title: 'Center'
+    });
 }
 
 

@@ -52,7 +52,16 @@ router.post('/create', upload.single('photo'), function(req, res) {
     sighting.create(req,res);
 });
 
+router.get('/bird', function(req, res, next) {
+    console.log("Calling /bird")
+
+    dbpedia_exist = false;
+    res.render('bird', {sighting: [], comments: [], dbpedia_exist: dbpedia_exist});
+});
+
+
 router.get('/bird/:id', function(req, res) {
+    console.log("calling /bird/:id")
     const idBird = req.params.id;
     console.log(idBird)
 
@@ -117,28 +126,23 @@ router.get('/bird/:id', function(req, res) {
                             console.log("Fetch error:", error);
                             dbpedia_exist = false;
                             // Render the bird view with the sighting and comments objects
-                            res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist});
+                            return res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist});
                         });
 
                 });
             });
 
         } catch (err) {
-            res.status(400).json({ error: 'Invalid ID' });
+            return res.status(400).json({ error: 'Invalid ID' });
         }
     } else {
-        let sighting = JSON.parse(req.query.sighting)
-        let photo = req.query.photo
-
-        console.log(photo)
-
-        sighting.photo = photo
-
-        console.log("Parsed Sighting:", sighting)
-        dbpedia_exist = false;
-        res.render('bird', { sighting: sighting, comments: [], dbpedia_exist: dbpedia_exist });
+        // let sighting = JSON.parse(req.query.sighting)
+        // let photo = req.query.photo
+        // console.log(photo)
+        // sighting.photo = photo
+        // console.log("Parsed Sighting:", sighting)
+        return res.render('bird', { sighting: [], comments: [], dbpedia_exist: false });
     }
-
 });
 
 

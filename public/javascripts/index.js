@@ -96,18 +96,11 @@ function updateSightings(sightings) {
 }
 
 async function toDetailHandler(id,path) {
+    // href="/bird/${birdId}"
+    // onclick="toDetailHandler('${birdId}','${photoUrl.replace(/\\/g, "\\\\")}')"
     let isMongo = isMongoDBObjectId(id)
     if (isMongo == false) {
-        let sighting = await getSightingById(id)
-        console.log(sighting)
-
-        const queryParams = {
-            sighting: JSON.stringify(sighting),
-            photo: path
-        };
-
-        // 在这里可以使用 queryParams 进行进一步处理或传递给其他地方
-        window.location.href = `/bird/${id}?${new URLSearchParams(queryParams).toString()}`;
+        window.location.href = `/bird?id=${id}`
     } else {
         window.location.href = `/bird/${id}`;
     }

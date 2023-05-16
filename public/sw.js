@@ -10,7 +10,7 @@ const filesToCache = [
     "img/onBoarding.png",
     "/create",
     "/index",
-    //"/bird/:id",
+    "/bird",
     "/"
 ];
 const staticCacheName = 'birdWatching';
@@ -25,9 +25,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // cache first
     event.respondWith(networkThenCache(event));
-
 });
 
 self.addEventListener('sync',  async (event) => {
@@ -326,30 +324,5 @@ function isMongoDBObjectId(str) {
     return pattern.test(str);
 }
 
-
-// async function getDataFromIndexDB() {
-//     return new Promise(function(resolve, reject) {
-//         const request = indexedDB.open("birdWatching",2);
-//         request.onerror = function(event) {
-//             reject(event.target.error);
-//         };
-//         request.onsuccess = function(event) {
-//
-//
-//             const birtWatchingIDB = event.target.result
-//             const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
-//             const sightingStore = transaction.objectStore("sighting")
-//
-//
-//             const getDataRequest = sightingStore.getAll();
-//             getDataRequest.onerror = function(event) {
-//                 reject(event.target.error);
-//             };
-//             getDataRequest.onsuccess = function(event) {
-//                 resolve(event.target.result);
-//             };
-//         };
-//     });
-// }
 
 
