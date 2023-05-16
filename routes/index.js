@@ -9,7 +9,7 @@ var multer = require('multer');
 const Sighting = require("../models/sightings");
 const Comment = require("../models/comments");
 const fs = require('fs');
-const formidable = require('formidable');
+
 
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -125,7 +125,6 @@ router.get('/bird/:id', function(req, res) {
 
         } catch (err) {
             res.status(400).json({ error: 'Invalid ID' });
-            // res.render('bird',{ indexId: idBird})
         }
     } else {
         let sighting = JSON.parse(req.query.sighting)
@@ -138,7 +137,6 @@ router.get('/bird/:id', function(req, res) {
         console.log("Parsed Sighting:", sighting)
         dbpedia_exist = false;
         res.render('bird', { sighting: sighting, comments: [], dbpedia_exist: dbpedia_exist });
-
     }
 
 });

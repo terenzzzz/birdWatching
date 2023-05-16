@@ -79,18 +79,6 @@ function hideLoginInterface(room, userId) {
     document.getElementById('chat_interface').style.display = 'block';
 }
 
-/**
- * called when the Send button is pressed. It gets the text to send from the interface
- * and sends the message via  socket
- */
-// function sendChatText() {
-//     console.log("sendChatText触发")
-//     let chatText = document.getElementById('chat_input').value;
-//     if (chatText != "" || chatText == null) {
-//         socket.emit('chat', roomNo, name, chatText);
-//         writeOnHistory('<b>' + "Me" + ':</b> ' + chatText.content);
-//     }
-// }
 
 function sendComment() {
     console.log("sendComment触发")
@@ -113,13 +101,16 @@ function sendComment() {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({nickname: nickname, content})
             })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Server error: ' + response.status);
+                    }
+                    console.log('fetch 完成');
+                })
                 .catch(function() {
                     console.log("Comment Add to Mongo Failed, calling insertComment");
                     insertComment(JSON.stringify({nickname: nickname, content}), roomId);
                 })
-                .then(function() {
-                    console.log("fetch 完成");
-                });
         } else {
             // 离线状态，调用 insertComment
             console.log("离线状态，调用 insertComment");

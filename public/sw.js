@@ -33,15 +33,21 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('sync',  async (event) => {
     console.info('Event: Sync', event);
 
-    // const sightings = await getSightingFromIndexDB();
-    // const comments = await getCommentFromIndexDB();
-    //
-    // const result = await syncDataToMongoDB(sightings);
-    // const commentResult = await syncCommentToMongoDB(comments);
-    //
-    // updateUnsync(result)
-    // updateCommentUnsync(commentResult)
-    // console.log("Sync Event Finished")
+    try {
+        const sightings = await getSightingFromIndexDB();
+        const result = await syncDataToMongoDB(sightings);
+        updateUnsync(result);
+
+        const comments = await getCommentFromIndexDB();
+        const commentResult = await syncCommentToMongoDB(comments);
+        updateCommentUnsync(commentResult);
+
+        // 所有任务执行完成
+        console.log('所有任务执行完成');
+    } catch (error) {
+        // 处理错误
+        console.error('任务执行失败:', error);
+    }
 
 });
 
@@ -256,6 +262,21 @@ async function syncDataToMongoDB(data) {
 async function syncCommentToMongoDB(data) {
     console.log("syncCommentToMongoDB",data)
 
+    for (let i = 0; i < data.length; i++) {
+        try {
+            if (!isMongoDBObjectId(data[i].idBird)) {
+                let MdbId = await findMdbIdByIdbId(data[i].idBird);
+                console.log("idBird:", data[i].idBird);
+                console.log("getMdbId:", MdbId);
+                data[i].idBird = MdbId;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    console.log("syncCommentToMongoDB Processed1:",data)
+
     try {
         const response = await fetch('/syncCommentToMongo', {
             method: 'POST',
@@ -273,6 +294,36 @@ async function syncCommentToMongoDB(data) {
         console.log('Error submitting form:', error);
         throw error;
     }
+}
+
+function findMdbIdByIdbId(IdbId){
+    console.log("findMdbIdByIdbId")
+    return new Promise((resolve, reject) => {
+        const dbRequest = indexedDB.open("birdWatching", 2);
+        dbRequest.onerror = function (event) {
+            reject(event.target.error);
+        };
+        dbRequest.onsuccess = function (event) {
+            const birtWatchingIDB = event.target.result
+            const transaction = birtWatchingIDB.transaction(["sighting"], "readwrite");
+            const sightingStore = transaction.objectStore("sighting");
+
+            const request = sightingStore.get(parseInt(IdbId));
+            request.onsuccess = (event) => {
+                const MdbId = event.target.result._id;
+                console.log("BdbId from query:", MdbId)
+                resolve(MdbId);
+            };
+            request.onerror = (event) => {
+                reject(event.target.error);
+            };
+        };
+    })
+}
+
+function isMongoDBObjectId(str) {
+    const pattern = /^[0-9a-fA-F]{24}$/;
+    return pattern.test(str);
 }
 
 

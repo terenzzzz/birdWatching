@@ -86,7 +86,7 @@ function updateSightings(sightings) {
               <p class="m-0 p-0 text-primary">${parseFloat(obj.latitude).toFixed(2)},${parseFloat(obj.longitude).toFixed(2)}</p>
             </div>
             <div class="col-2 d-flex justify-content-center align-items-center">
-              <a onclick="toDetailHandler('${birdId}','${photoUrl}')"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
+              <a onclick="toDetailHandler('${birdId}','${photoUrl.replace(/\\/g, "\\\\")}')"><i class="bi bi-arrow-right" style="font-size: 4rem"></i></a>
             </div>
           </div>
         </div>`

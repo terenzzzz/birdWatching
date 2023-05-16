@@ -1,6 +1,7 @@
 window.onload = async function () {
     console.log("bird.onload")
     registerSync();
+    identification_txt.style.display="block";
 };
 
 

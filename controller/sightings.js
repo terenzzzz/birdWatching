@@ -47,6 +47,7 @@ exports.sync = function (req, res) {
             console.log("Failed to insert many data into MongoDB")
             res.status(500).send('Failed to insert many data into MongoDB');
         } else {
+            console.log("sync sightings finished!!!: ",result)
             res.status(200).send({result:result});
         }
     });
