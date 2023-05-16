@@ -100,3 +100,15 @@ function handleFormSubmit(event) {
     console.log("fetch 完成");
 
 }
+
+function setUnknown() {
+    document.getElementById("identification").value = "Unknown";
+}
+
+function setUncertain() {
+    let identification = document.getElementById("identification").value;
+    if (identification !== "") {
+        identification += " (Uncertain)";
+        document.getElementById("identification").value = identification;
+    }
+}
