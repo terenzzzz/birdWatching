@@ -23,9 +23,30 @@ self.addEventListener('install', event => {
         return cache.addAll(filesToCache);
     }));
 });
-
 self.addEventListener('fetch', (event) => {
-    event.respondWith(networkThenCache(event));
+    const parsedUrl = new URL(event.request.url);
+    if (parsedUrl.pathname === '/bird') {
+        event.respondWith(
+            caches.match(parsedUrl.pathname).then((cachedResponse) => {
+                if (cachedResponse) {
+                    return cachedResponse;
+                } else {
+                    const params = new URLSearchParams(parsedUrl.search);
+                    const id = params.get('id');
+                    const cacheKey = `/bird?id=${id}`;
+                    return caches.match(cacheKey).then((cachedResponse) => {
+                        if (cachedResponse) {
+                            return cachedResponse;
+                        } else {
+                            return networkThenCache(event, cacheKey);
+                        }
+                    });
+                }
+            })
+        );
+    } else {
+        event.respondWith(networkThenCache(event));
+    }
 });
 
 self.addEventListener('sync',  async (event) => {
