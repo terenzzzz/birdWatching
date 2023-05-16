@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const fetch = require('node-fetch');
+const { SparqlEndpointFetcher } = require('fetch-sparql-endpoint');
 var bodyParser= require("body-parser");
 var sighting = require('../controller/sightings');
 var comment = require('../controller/comment');
@@ -10,6 +10,7 @@ const Sighting = require("../models/sightings");
 const Comment = require("../models/comments");
 const fs = require('fs');
 
+const myFetcher = new SparqlEndpointFetcher();
 
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -109,33 +110,34 @@ router.get('/bird/:id', function(req, res) {
                   FILTER (langMatches(lang(?abstract),"en"))
                 }`;
 
-                    // Encode the query as a URL parameter
-                    const encodedQuery = encodeURIComponent(sparqlQuery);
-                    // Build the URL for the SPARQL query
-                    const url = `${endpointUrl}?query=${encodedQuery}&format=json`;
-                    // Use fetch to retrieve the data
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(data => {
-                            // The results are in the 'data' object
-                            var bindings = data.results.bindings;
-                            var result = JSON.stringify(bindings);
-
-                            console.log(bindings)
+                // Use SparqlEndpointFetcher() to retrieve the data
+                myFetcher.fetchBindings(endpointUrl, sparqlQuery)
+                    .then(bindingsStream => {
+                        let dataReceived = false; // Flag to track if data was received
+                        bindingsStream.on('data', (bindings) =>{
+                            dataReceived = true; // Set the flag to true when data is received
+                            let abstractValue = bindings.abstract.value;
+                            let thumbnailValue = bindings.thumbnail.value;
+                            let labelValue = bindings.label.value;
                             // Render the bird view with the sighting and comments objects
-                            res.render('bird', { sighting: sighting, comments: comments, label: bindings[0].label.value,
-                                abstract: bindings[0].abstract.value, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:bindings[0].thumbnail.value});
+
+                            return res.render('bird', { sighting: sighting, comments: comments, label: labelValue,
+                                abstract: abstractValue, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:thumbnailValue});
                         })
-                        .catch(error => {
-                            console.log("Fetch error:", error);
-                            dbpedia_exist = false;
-                            // Render the bird view with the sighting and comments objects
-                            return res.render('bird', { sighting: sighting, comments: comments, dbpedia_exist: dbpedia_exist});
-                        });
 
+                        bindingsStream.on('end', () => {
+                            if (!dataReceived) {
+                                dbpedia_exist = false;
+                                // Render the bird view with the sighting and comments objects
+                                res.render('bird', {
+                                    sighting: sighting,
+                                    comments: comments,
+                                    dbpedia_exist: dbpedia_exist});
+                            }
+                        });
+                    })
                 });
             });
-
         } catch (err) {
             return res.status(400).json({ error: 'Invalid ID' });
         }
