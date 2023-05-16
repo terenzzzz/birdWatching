@@ -170,18 +170,18 @@ async function sortByIdentification() {
         const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
         alertPlaceholder.style.display = 'none';
     }, 2000);
-    var unknowList = []
+    var unknownList = []
     var elseList = []
 
     allSightings.forEach(st => {
         console.log(st.nickName)
-        if (st.identification == "Unknow") {
-            unknowList.push(st)
+        if (st.identification == "Unknown" || st.identification.includes('(Uncertain)')) {
+            unknownList.push(st)
         } else {
             elseList.push(st)
         }
     });
-    let sortedUnknow = unknowList.sort(function (a, b) {
+    let sortedUnknown = unknownList.sort(function (a, b) {
         let dateA = new Date(a.dateTime.split('-').reverse().join('-'));
         let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
         return dateB - dateA;
@@ -193,10 +193,8 @@ async function sortByIdentification() {
         return dateB - dateA;
     });
 
-    sortedElse.forEach(st => {
-        sortedUnknow.push(st)
-    });
-    updateSightings(unknowList)
+
+    updateSightings(sortedElse.concat(sortedUnknown));
 }
 
 function sortByLocation(){

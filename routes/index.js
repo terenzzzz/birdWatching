@@ -81,6 +81,10 @@ router.get('/bird/:id', function(req, res) {
                     return res.status(404).json({ error: 'Sighting not found' });
                 }
                 var identification = sighting.identification;
+                // if the identification is uncertain, then extract the name part only
+                if (identification.includes('(Uncertain)')) {
+                    identification = identification.substring(0, identification.indexOf(' (Uncertain)'));
+                }
                 // Capitalise the first letter and convert the rest to lowercase
                 identification = identification.charAt(0).toUpperCase() + identification.slice(1).toLowerCase();
                 // Check if the identification contains more than one word
