@@ -139,6 +139,7 @@
         <p class="text-muted">Created by: <%=sighting.nickName%></p>
       </div>
     </div>
+
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -155,17 +156,14 @@
                 <input type="text" class="form-control" id="identification" name="identification" required value="<%=sighting.identification%>">
               </div><br/>
 
-              <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea class="form-control" id="description" name="description" rows="3" required><%=sighting.description%></textarea>
-              </div><br/>
-
-              <button type="submit" class="btn btn-primary">Edit</button>
+              <button type="submit" class="btn btn-primary">Update</button>
             </form>
           </div>
         </div>
       </div>
     </div>
+
+
 
     <div>
       <button id="edit_button" type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editModal">Edit Sighting</button>
@@ -186,10 +184,7 @@
 
 <script>
 
-  if (!sessionStorage.getItem("nickName")) {
-    window.location.href = "/";
-    alert("Please Field Your Nick Name.");
-  }
+
 
   if (sessionStorage.getItem("nickName") != "<%=sighting.nickName%>") {
     edit_button= document.getElementById("edit_button").style.display = 'none';;
