@@ -44,10 +44,9 @@ function init() {
 function connectToRoom() {
     roomNo = document.getElementById('comment_btn').value;
     name = sessionStorage.getItem("nickName")
-    console.log(sessionStorage.getItem("nickName"))
+    console.log("nickName:",name)
     hideLoginInterface(roomNo, name);
 
-    //if (!name) name = 'Unknown-' + Math.random();
     socket.emit('create or join', roomNo, name);
 }
 
@@ -83,14 +82,12 @@ function hideLoginInterface(room, userId) {
  * Handling Send Comment From Chat Interface
  */
 function sendComment() {
-    console.log("sendComment触发")
     const nickname =sessionStorage.getItem("nickName");
     const content = document.getElementById("chat_input").value;
     const roomId = document.getElementById('comment_btn').value;
 
     if (content.trim() === '') {
         appendAlert('Please Filed in Your Comment First!', 'warning')
-        // 设置三秒后隐藏alert
         setTimeout(function() {
             alertPlaceholder.style.display = 'none';
         }, 3000);
@@ -107,6 +104,7 @@ function sendComment() {
                     if (!response.ok) {
                         throw new Error('Server error: ' + response.status);
                     }
+                    console.log("Comment Added to MongoDb");
                 })
                 .catch(function() {
                     console.log("Comment Add to Mongo Failed, calling insertComment");
