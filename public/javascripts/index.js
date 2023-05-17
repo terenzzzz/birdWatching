@@ -6,10 +6,8 @@ window.onload = async function () {
 
     try {
         allSightings = await combineSightings(sightingsData);
-        // 在这里使用 result 值
         updateSightings(allSightings)
     } catch (error) {
-        // 处理错误
         console.error('Error occurred:', error);
     }
 };
@@ -52,20 +50,19 @@ window.onload = async function () {
     }
 })();
 
+/**
+ * Render Sighting list
+ */
 function updateSightings(sightings) {
-    console.log("sightings", sightings)
+    console.log("sightings List:", sightings)
 
-    // 创建一个新的 div 元素
     var parentDiv = document.getElementById('sighting-container');
-
     parentDiv.innerHTML = ""
-    
 
     sightings.forEach(function (obj) {
         if (typeof obj.photo === "string") {
             photoUrl = obj.photo ? obj.photo.replace('public', '') : '/img/default.png';
         } else if (obj.photo instanceof File) {
-            // 创建一个URL对象来获取文件的临时URL
             var photoUrl = URL.createObjectURL(obj.photo);
         } else {
             photoUrl = '/img/default.png';
@@ -90,14 +87,14 @@ function updateSightings(sightings) {
             </div>
           </div>
         </div>`
-        // 将 HTML 模板字符串添加到父元素中
         parentDiv.innerHTML += templateString;
     });
 }
 
-async function toDetailHandler(id,path) {
-    // href="/bird/${birdId}"
-    // onclick="toDetailHandler('${birdId}','${photoUrl.replace(/\\/g, "\\\\")}')"
+/**
+ * Handling Which url Should redirect when click on the Sighting in Index page
+ */
+async function toDetailHandler(id) {
     let isMongo = isMongoDBObjectId(id)
     if (isMongo == false) {
         window.location.href = `/bird?id=${id}`
@@ -106,50 +103,33 @@ async function toDetailHandler(id,path) {
     }
 }
 
+/**
+ * Check MongoDb ObjectId
+ */
 function isMongoDBObjectId(str) {
     const pattern = /^[0-9a-fA-F]{24}$/;
     return pattern.test(str);
 }
 
+/**
+ * Combine Sightings form MongoDb and Not Sync Sightings form IndexDb
+ */
 async function combineSightings (data) {
     try {
-        const result = await getNotSync();
-        // 在这里使用 result 值
+        const result = await getSighting();
         console.log("Received result:", result);
         result.forEach(function (obj) {
             data.push(obj)
         })
         return data
     } catch (error) {
-        // 处理错误
         console.error('Error occurred:', error);
     }
 }
 
-
-
-async function getNotSync() {
-    try {
-        const result = await getSighting();
-        console.log("result", result);
-        return result; // 将 result 值返回给调用者
-    } catch (error) {
-        console.error('Error retrieving data:', error);
-        throw error; // 将错误抛出给调用者
-    }
-}
-
-async function getNotSyncComment() {
-    try {
-        const result = await getComment();
-        console.log("Comment result", result);
-        return result; // 将 result 值返回给调用者
-    } catch (error) {
-        console.error('Error retrieving data:', error);
-        throw error; // 将错误抛出给调用者
-    }
-}
-
+/**
+ * Sort Sightings By Date Handler
+ */
 function sortByDate() {
     appendAlert('Sighting Sorted By Date!', 'success')
     setTimeout(function() {
@@ -164,6 +144,9 @@ function sortByDate() {
     updateSightings(sorted)
 }
 
+/**
+ * Sort Sightings By Identification Handler
+ */
 async function sortByIdentification() {
     appendAlert('Sighting Sorted By Identification!', 'success')
     setTimeout(function() {
@@ -192,11 +175,12 @@ async function sortByIdentification() {
         let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
         return dateB - dateA;
     });
-
-
     updateSightings(sortedElse.concat(sortedUnknown));
 }
 
+/**
+ * Sort Sightings By Location Handler
+ */
 function sortByLocation(){
     appendAlert('Sighting Sorted By Location!', 'success')
     setTimeout(function() {
@@ -206,10 +190,6 @@ function sortByLocation(){
     if (navigator.geolocation) {
         // Get Current Location
         navigator.geolocation.getCurrentPosition(function(position) {
-            console.log(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
-
-            // id:Distance
-            var idDis =  {};
             var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
             // Calculate Distance and add to dictionary
@@ -227,7 +207,7 @@ function sortByLocation(){
                 return a.distance - b.distance;
             })
 
-            console.log("sorted",sorted)
+            console.log("Sorted By Location: ",sorted)
             updateSightings(sorted)
         }, function(error) {
             console.log("Error getting current position: " + error.message);
@@ -238,7 +218,9 @@ function sortByLocation(){
 
 }
 
-// Sync For Service Worker
+/**
+ * Register Sync Event for Service Worker
+ */
 function registerSync() {
     new Promise(function (resolve, reject) {
         Notification.requestPermission(function (result) {
@@ -255,6 +237,9 @@ function registerSync() {
     });
 }
 
+/**
+ * Alert handler
+ */
 const appendAlert = (message, type) => {
     const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
     alertPlaceholder.innerHTML = ""

@@ -79,7 +79,9 @@ function hideLoginInterface(room, userId) {
     document.getElementById('chat_interface').style.display = 'block';
 }
 
-
+/**
+ * Handling Send Comment From Chat Interface
+ */
 function sendComment() {
     console.log("sendComment触发")
     const nickname =sessionStorage.getItem("nickName");
@@ -94,7 +96,7 @@ function sendComment() {
         }, 3000);
     }else {
         if (navigator.onLine) {
-            // 在线状态，发送请求
+            // If Online, Send Http Request to Handle Comment into MongoDb
             socket.emit('chat', roomNo, name, content);
             fetch(`/bird/${roomId}`, {
                 method: 'POST',
@@ -105,17 +107,15 @@ function sendComment() {
                     if (!response.ok) {
                         throw new Error('Server error: ' + response.status);
                     }
-                    console.log('fetch 完成');
                 })
                 .catch(function() {
                     console.log("Comment Add to Mongo Failed, calling insertComment");
                     insertComment(JSON.stringify({nickname: nickname, content}), roomId);
                 })
         } else {
-            // 离线状态，调用 insertComment
-            console.log("离线状态，调用 insertComment");
+            // If Offline, Call insertComment() to Handle Comment into IndexDb
+            console.log("Offline! Inserting comment into IndexDb");
             insertComment(JSON.stringify({nickname: nickname, content}), roomId);
-            console.log("fetch 完成");
         }
         writeOnHistory('<b>' + "Me" + ':</b> ' + content);
     }

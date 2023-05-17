@@ -30,12 +30,18 @@ var storage = multer.diskStorage({
 });
 var upload = multer({ storage: storage });
 
-/* GET home page. */
+
+/**
+ * OnBoarding page Router
+ */
 router.get('/', function(req, res, next) {
     res.render('onBoarding');
 });
 
 
+/**
+ * Index page Router
+ */
 router.get('/index', function(req, res, next) {
     index.getAll(function(err, sightings) {
         if (err) {console.error("err:" + err)}
@@ -45,22 +51,32 @@ router.get('/index', function(req, res, next) {
     })
 });
 
-
+/**
+ * Create page Router
+ */
 router.get('/create', function(req, res, next) {
     res.render('create');
 });
+
+/**
+ * Create page Form Router
+ */
 router.post('/create', upload.single('photo'), function(req, res) {
     sighting.create(req,res);
 });
 
+/**
+ *  * Bird Offline page Router
+ */
 router.get('/bird', function(req, res, next) {
     console.log("Calling /bird")
-
     dbpedia_exist = false;
     res.render('bird', {sighting: [], comments: [], dbpedia_exist: dbpedia_exist});
 });
 
-
+/**
+ * Bird Online page Router
+ */
 router.get('/bird/:id', function(req, res) {
     console.log("calling /bird/:id")
     const idBird = req.params.id;
@@ -120,7 +136,6 @@ router.get('/bird/:id', function(req, res) {
                             let thumbnailValue = bindings.thumbnail.value;
                             let labelValue = bindings.label.value;
                             // Render the bird view with the sighting and comments objects
-
                             return res.render('bird', { sighting: sighting, comments: comments, label: labelValue,
                                 abstract: abstractValue, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:thumbnailValue});
                         })
@@ -142,16 +157,13 @@ router.get('/bird/:id', function(req, res) {
             return res.status(400).json({ error: 'Invalid ID' });
         }
     } else {
-        // let sighting = JSON.parse(req.query.sighting)
-        // let photo = req.query.photo
-        // console.log(photo)
-        // sighting.photo = photo
-        // console.log("Parsed Sighting:", sighting)
         return res.render('bird', { sighting: [], comments: [], dbpedia_exist: false });
     }
 });
 
-
+/**
+ * Sighting Comment Router
+ */
 router.post('/bird/:id/', (req, res) => {
     const comment = new Comment({
         idBird: req.params.id,
@@ -170,8 +182,9 @@ router.post('/bird/:id/', (req, res) => {
 
 });
 
-// GET edit sighting page
-
+/**
+ * Sighting Edit Router
+ */
 router.post('/bird/:id/edit', function(req, res) {
     let birdId = req.params.id;
     console.log('Bird ID:', birdId);
@@ -189,19 +202,19 @@ router.post('/bird/:id/edit', function(req, res) {
     });
 });
 
+/**
+ * Sync Sightings to MongoDb Router
+ */
 router.post("/syncToMongo",upload.array('photo'),function(req, res) {
-    // console.log(req.body)
-    // console.log(req.files)
     sighting.sync(req,res);
-//
+
 })
 
+/**
+ * Sync Comments to MongoDb Router
+ */
 router.post("/syncCommentToMongo",function(req, res) {
-    // console.log(req.body)
-    // console.log(req.files)
-    console.log("/syncCommentToMongo")
     comment.syncComment(req,res);
-//
 })
 
 module.exports = router;

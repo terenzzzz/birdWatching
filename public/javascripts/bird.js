@@ -3,15 +3,15 @@ window.onload = async function () {
     registerSync();
     identification_txt.style.display="block";
 
+    // Get bird id from url query
     const url = new URL(window.location.href);
-
-        // 获取 URL 查询参数
     const searchParams = new URLSearchParams(url.search);
-
-        // 获取 id 参数的值
     const idBird = searchParams.get('id');
-    console.log("idBird",idBird)
 
+    /**
+     * If the bird's id is IndexDb id, Get Sighting from IndexDb,
+     * Assign Sighting Detail to The Page
+     */
     if (!isMongoDBObjectId(idBird)){
         try{
             const sighting = await getSightingById(idBird)
@@ -47,6 +47,9 @@ window.onload = async function () {
 
 };
 
+/**
+ * Checking If the Id is Type of MongoDb ObjectId
+ */
 function isMongoDBObjectId(str) {
     const pattern = /^[0-9a-fA-F]{24}$/;
     return pattern.test(str);
@@ -116,9 +119,10 @@ identification_btn.addEventListener("click", function() {
     comment_txt.style.display="none";
 });
 
-
+/**
+ * Handling Alert
+ */
 const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
-const alertTrigger = document.getElementById('liveAlertBtn')
 const appendAlert = (message, type) => {
     const wrapper = document.createElement('div')
     wrapper.innerHTML = [
@@ -131,6 +135,9 @@ const appendAlert = (message, type) => {
     alertPlaceholder.append(wrapper)
 }
 
+/**
+ * Init Map when Offline
+ */
 function initMapOffline(latitude,longitude) {
     let center ={lat: parseFloat(latitude),lng: parseFloat(longitude)}
     let map = new google.maps.Map(document.getElementById('map'), {
@@ -145,7 +152,9 @@ function initMapOffline(latitude,longitude) {
     });
 }
 
-
+/**
+ * Register Sync Event fot Service Worked
+ */
 function registerSync() {
     new Promise(function (resolve, reject) {
         Notification.requestPermission(function (result) {

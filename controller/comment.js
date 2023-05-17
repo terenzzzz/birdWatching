@@ -1,4 +1,7 @@
 var Comment = require('../models/comments');
+/**
+ * Handling Comments sync
+ */
 exports.syncComment = function (req, res) {
     let comments = req.body
 

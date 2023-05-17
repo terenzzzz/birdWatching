@@ -15,7 +15,9 @@ const filesToCache = [
 ];
 const staticCacheName = 'birdWatching';
 
-
+/**
+ * Service Worker install Event Handler
+ */
 self.addEventListener('install', event => {
     console.log('Installing service worker');
     event.waitUntil(caches.open(staticCacheName).then(cache => {
@@ -23,6 +25,9 @@ self.addEventListener('install', event => {
         return cache.addAll(filesToCache);
     }));
 });
+/**
+ * Service Worker fetch Event Handler
+ */
 self.addEventListener('fetch', (event) => {
     const parsedUrl = new URL(event.request.url);
     if (parsedUrl.pathname === '/bird') {
@@ -49,9 +54,11 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
+/**
+ * Service Worker sync Event Handler
+ */
 self.addEventListener('sync',  async (event) => {
     console.info('Event: Sync', event);
-
     try {
         const sightings = await getSightingFromIndexDB();
         const result = await syncDataToMongoDB(sightings);
@@ -61,22 +68,22 @@ self.addEventListener('sync',  async (event) => {
         const commentResult = await syncCommentToMongoDB(comments);
         updateCommentUnsync(commentResult);
 
-        // 所有任务执行完成
-        console.log('所有任务执行完成');
+        console.info('All Sync Done!');
     } catch (error) {
-        // 处理错误
-        console.error('任务执行失败:', error);
+        console.error('Sync Failed:', error);
     }
-
 });
 
 
+/**
+ * Cache Handler, Network First then Cache
+ */
 async function networkThenCache(event) {
     try {
         const networkResponse = await fetch(event.request);
         console.log('Calling network: ' + event.request.url);
-        // Store the network response in a cache for future use
 
+        // Store the network response in a cache for future use
         const cache = await caches.open(staticCacheName);
         if (event.request.method === 'GET') {
             await cache.put(event.request, networkResponse.clone());
@@ -93,11 +100,13 @@ async function networkThenCache(event) {
                 return cachedResponse;
             }
         }
-        return new Response('Offline Page');
+        return new Response('You Are Offline Now!!!');
     }
 }
 
-
+/**
+ * Get Unsync Sightings From IndexDB
+ */
 async function getSightingFromIndexDB() {
     return new Promise(function(resolve, reject) {
         const request = indexedDB.open("birdWatching",2);
@@ -105,38 +114,36 @@ async function getSightingFromIndexDB() {
             reject(event.target.error);
         };
         request.onsuccess = function(event) {
-
-
             const birtWatchingIDB = event.target.result
             const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
             const sightingStore = transaction.objectStore("sighting")
 
-
             const cursorRequest = sightingStore.openCursor();
-            const result = []; // 存储查询结果的数组
+            const result = [];
 
             cursorRequest.onsuccess = function(event) {
                 const cursor = event.target.result;
                 if (cursor) {
                     const data = cursor.value;
                     if (data._id == -1){
-                        result.push(data); // 将对象数据添加到数组中
+                        result.push(data);
                     }
                     cursor.continue();
                 } else {
-                    // 遍历完所有对象，使用 Promise 的 resolve 返回结果
                     resolve(result);
                 }
             };
 
             cursorRequest.onerror = function(event) {
-                // 处理错误，使用 Promise 的 reject 返回错误信息
                 reject(event.target.error);
             };
         }
     })
 }
 
+/**
+ * Get Unsync Comments From IndexDB
+ */
 async function getCommentFromIndexDB() {
     return new Promise(function(resolve, reject) {
         const request = indexedDB.open("birdWatching",2);
@@ -148,7 +155,7 @@ async function getCommentFromIndexDB() {
             const transaction = birtWatchingIDB.transaction(["comment"], "readwrite");
             const commentStore = transaction.objectStore("comment");
             const cursorRequest = commentStore.openCursor();
-            const result = []; // 存储查询结果的数组
+            const result = [];
 
             cursorRequest.onsuccess = function (event) {
                 const cursor = event.target.result;
@@ -157,23 +164,22 @@ async function getCommentFromIndexDB() {
                     result.push(data)
                     cursor.continue();
                 } else {
-                    // 遍历完所有对象，使用 Promise 的 resolve 返回结果
                     resolve(result);
                 }
             };
 
             cursorRequest.onerror = function (event) {
-                // 处理错误，使用 Promise 的 reject 返回错误信息
                 reject(event.target.error);
             };
         }
     })
 }
 
+/**
+ * Update IndexDb once the Sightings are sync to MongoDb
+ */
 function updateUnsync (data){
-    // console.log("updateUnsync")
-    console.log("updateUnsyncdata:",data.result)
-
+    console.log("Sync Sightings to MongoDb Done,Updating IndexDb")
     const request = indexedDB.open("birdWatching",2);
     request.onerror = function(event) {
         reject(event.target.error);
@@ -183,7 +189,6 @@ function updateUnsync (data){
         const transaction = birtWatchingIDB.transaction(["sighting"], "readwrite")
         const sightingStore = transaction.objectStore("sighting")
 
-        // 使用游标遍历对象存储空间中的数据
         var request = sightingStore.openCursor();
         request.onerror = function (event) {
             console.error('Failed to open cursor:', event.target.error);
@@ -194,12 +199,10 @@ function updateUnsync (data){
             if (cursor) {
                 var indexData = cursor.value;
                 if (cursor.value._id == -1) {
-                    // 使用游标的 update() 方法更新对象
                     var updatedData = {
                         ...indexData,
                         _id: data.result[0]._id
                     };
-                    // 使用游标的 update() 方法更新对象
                     var updateRequest = cursor.update(updatedData);
                     data.result.shift()
 
@@ -209,16 +212,17 @@ function updateUnsync (data){
                     updateRequest.onsuccess = function (event) {
                     };
                 }
-                // 继续遍历下一个数据项
                 cursor.continue();
             }
         }
     }
 }
 
+/**
+ * Update IndexDb once the Comments are sync to MongoDb
+ */
 function updateCommentUnsync (data){
-    // console.log("updateUnsync")
-    console.log("updateUnsyncdata:",data.result)
+    console.log("Sync Comments to MongoDb Done,Updating IndexDb")
     const request = indexedDB.open("birdWatching",2);
     request.onerror = function(event) {
         reject(event.target.error);
@@ -229,13 +233,10 @@ function updateCommentUnsync (data){
         const commentStore = transaction.objectStore("comment")
 
         if (data.result == 200) {
-            // 清除对象存储中的数据
             const clearRequest = commentStore.clear();
-
             clearRequest.onerror = function (event) {
                 console.error('Failed to clear data:', event.target.error);
             };
-
             clearRequest.onsuccess = function (event) {
                 console.log('Data cleared successfully');
             };
@@ -243,18 +244,17 @@ function updateCommentUnsync (data){
     }
 }
 
+/**
+ * Sync Sightings to MongoDb handler
+ */
 async function syncDataToMongoDB(data) {
-    console.log("syncDataToMongoDB",data)
-
-    // 创建一个新的 FormData 对象
+    console.log("Syncing Sightings to MongoDb:",data)
     var formData = new FormData();
     formData.append("data",JSON.stringify(data))
 
-    // 遍历数组中的每个对象
     data.forEach(function (obj) {
         Object.keys(obj).forEach(function (key) {
             if (key === 'photo') {
-                // 如果属性名是 'photo'，将文件对象作为值添加到 FormData
                 formData.append(key, obj[key]);
             }
         });
@@ -278,23 +278,21 @@ async function syncDataToMongoDB(data) {
     }
 }
 
+/**
+ * Sync Sightings to MongoDb handler
+ */
 async function syncCommentToMongoDB(data) {
-    console.log("syncCommentToMongoDB",data)
-
+    console.log("Syncing Comments to MongoDb:",data)
     for (let i = 0; i < data.length; i++) {
         try {
             if (!isMongoDBObjectId(data[i].idBird)) {
                 let MdbId = await findMdbIdByIdbId(data[i].idBird);
-                console.log("idBird:", data[i].idBird);
-                console.log("getMdbId:", MdbId);
                 data[i].idBird = MdbId;
             }
         } catch (error) {
             console.error("Error:", error);
         }
     }
-
-    console.log("syncCommentToMongoDB Processed1:",data)
 
     try {
         const response = await fetch('/syncCommentToMongo', {
@@ -315,8 +313,10 @@ async function syncCommentToMongoDB(data) {
     }
 }
 
+/**
+ * Get MongoDb's id By IndexDb's id
+ */
 function findMdbIdByIdbId(IdbId){
-    console.log("findMdbIdByIdbId")
     return new Promise((resolve, reject) => {
         const dbRequest = indexedDB.open("birdWatching", 2);
         dbRequest.onerror = function (event) {
@@ -330,7 +330,6 @@ function findMdbIdByIdbId(IdbId){
             const request = sightingStore.get(parseInt(IdbId));
             request.onsuccess = (event) => {
                 const MdbId = event.target.result._id;
-                console.log("BdbId from query:", MdbId)
                 resolve(MdbId);
             };
             request.onerror = (event) => {
@@ -340,6 +339,9 @@ function findMdbIdByIdbId(IdbId){
     })
 }
 
+/**
+ * Check id is MongoDb ObjectId
+ */
 function isMongoDBObjectId(str) {
     const pattern = /^[0-9a-fA-F]{24}$/;
     return pattern.test(str);

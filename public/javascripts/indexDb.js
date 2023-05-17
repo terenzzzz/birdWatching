@@ -1,13 +1,16 @@
 
+/**
+ * Init IndexDb
+ */
 let requestIndexedDB = indexedDB.open("birdWatching",2)
-
-
 requestIndexedDB.addEventListener("error",handlerError)
 requestIndexedDB.addEventListener("upgradeneeded",upgradeStores)
 requestIndexedDB.addEventListener("success", handleSuccess)
 
 
-
+/**
+ * Insert Sighting into IndexDb
+ */
 function insertSighting (data,id){
     console.log("insertSighting to indexDB")
     const birtWatchingIDB = requestIndexedDB.result
@@ -29,6 +32,9 @@ function insertSighting (data,id){
     }
 }
 
+/**
+ * Insert Comment into IndexDb
+ */
 function insertComment (data,id){
     console.log("insertComment",insertComment)
     const birtWatchingIDB = requestIndexedDB.result
@@ -53,68 +59,9 @@ function insertComment (data,id){
     }
 }
 
-function updateUnsync (data){
-    // console.log("updateUnsync")
-    console.log("updateUnsyncdata:",data.result)
-
-    const birtWatchingIDB = requestIndexedDB.result
-    const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
-    const sightingStore = transaction.objectStore("sighting")
-
-    // 使用游标遍历对象存储空间中的数据
-    var request = sightingStore.openCursor();
-    request.onerror = function(event) {
-        console.error('Failed to open cursor:', event.target.error);
-    };
-    request.onsuccess = function(event) {
-        var cursor = event.target.result;
-
-        if (cursor) {
-            var indexData = cursor.value;
-            if (cursor.value._id == -1) {
-                // 使用游标的 update() 方法更新对象
-                var updatedData = {
-                    ...indexData,
-                    _id: data.result[0]._id
-                };
-                // 使用游标的 update() 方法更新对象
-                var updateRequest = cursor.update(updatedData);
-                data.result.shift()
-
-                updateRequest.onerror = function (event) {
-                    console.error('Failed to update data:', event.target.error);
-                };
-                updateRequest.onsuccess = function (event) {};
-            }
-            // 继续遍历下一个数据项
-            cursor.continue();
-        }
-    }
-}
-
-function updateCommentUnsync (data){
-    // console.log("updateUnsync")
-    console.log("updateUnsyncdata:",data.result)
-
-    const birtWatchingIDB = requestIndexedDB.result
-    const transaction = birtWatchingIDB.transaction(["comment"],"readwrite")
-    const commentStore = transaction.objectStore("comment")
-
-    if (data.result == 200){
-        // 清除对象存储中的数据
-        const clearRequest = commentStore.clear();
-
-        clearRequest.onerror = function(event) {
-            console.error('Failed to clear data:', event.target.error);
-        };
-
-        clearRequest.onsuccess = function(event) {
-            console.log('Data cleared successfully');
-        };
-    }
-
-}
-
+/**
+ * Get all Unsync Sightings From IndexDb
+ */
 function getSighting() {
     return new Promise((resolve, reject) => {
         const birtWatchingIDB = requestIndexedDB.result;
@@ -144,6 +91,9 @@ function getSighting() {
     });
 }
 
+/**
+ * Get Specific Sighting By Sighting's IndexDb id
+ */
 function getSightingById(id) {
     let idBird = parseInt(id)
     return new Promise((resolve, reject) => {
@@ -163,6 +113,9 @@ function getSightingById(id) {
     });
 }
 
+/**
+ * Get All Comments From IndexDb
+ */
 function getComment() {
     return new Promise((resolve, reject) => {
         const birtWatchingIDB = requestIndexedDB.result;
@@ -191,14 +144,16 @@ function getComment() {
 }
 
 
-
-
-
-
+/**
+ * Handling IndexDb Error
+ */
 function handlerError(err){
     console.log(`IndexDb Error: ${err}` )
 }
 
+/**
+ * Handling IndexDb Upgrade Stores
+ */
 function upgradeStores(ev){
     const db = ev.target.result
     db.createObjectStore("sighting",{keyPath:"id", autoIncrement : true})
@@ -206,6 +161,9 @@ function upgradeStores(ev){
     console.log("Object:'Sighting' and Object:'comment' created in upgradeStores" )
 }
 
+/**
+ * Handling IndexDb Success
+ */
 function handleSuccess(ev){
     // init
     console.log("IndexDb Success" )
