@@ -2,6 +2,7 @@ const filesToCache = [
     "https://b.tile.openstreetmap.org/10/506/332.png",
     "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js",
     "https://maps.googleapis.com/maps/api/js?key=AIzaSyC-ENULiIcN4gEjuDWK9S42fE2ljikToEw&callback=initMap",
+    // "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     "javascripts/socket.js",
     "javascripts/bird.js",
     "javascripts/create.js",

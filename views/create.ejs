@@ -28,7 +28,6 @@
     <div class="card-body">
       <div class="row justify-content-center">
         <div class="col-sm-10 col-md-8 col-lg-6">
-<!--          <form id="addForm"  enctype="multipart/form-data" method="POST" action="/create" >-->
           <form id="addForm">
             <div class="form-group">
               <label for="identification">Identification (<em>if you don't know the identification  of the bird, please click <strong>Unknown</strong>. If you are uncertain about the identification, type in the identification you assume and click <strong>Uncertain</strong></em>:</label>
@@ -44,7 +43,7 @@
             </div><br/>
             <div class="form-group">
               <label for="date">Date:</label>
-              <input type="text" class="form-control" id="dateTime" name="dateTime" placeholder="DD-MM-YYYY" required>
+              <input type="date" class="form-control" id="dateTime" name="dateTime" placeholder="DD-MM-YYYY" required>
               <div class="invalid-feedback">
                 Please enter a valid date format of DD-MM-YYYY.
               </div>
