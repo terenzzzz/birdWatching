@@ -1,3 +1,6 @@
+/**
+ * Sighting model
+ */
 let mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 

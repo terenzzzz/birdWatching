@@ -1,12 +1,12 @@
 var Comment = require('../models/comments');
 /**
- * Handling Comments sync
+ * Handling sync comments into MongoDB
  */
 exports.syncComment = function (req, res) {
     let comments = req.body
 
     console.log(comments)
-
+    // Insert multiple comments into MongoDB
     Comment.insertMany(comments,function(err, result) {
         if (err) {
             console.log(err)

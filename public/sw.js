@@ -26,6 +26,7 @@ self.addEventListener('install', event => {
         return cache.addAll(filesToCache);
     }));
 });
+
 /**
  * Service Worker fetch Event Handler
  */
@@ -77,7 +78,7 @@ self.addEventListener('sync',  async (event) => {
 
 
 /**
- * Cache Handler, Network First then Cache
+ * Cache Handler, Network First then Cache approach
  */
 async function networkThenCache(event) {
     try {
@@ -106,7 +107,7 @@ async function networkThenCache(event) {
 }
 
 /**
- * Get Unsync Sightings From IndexDB
+ * Get Unsynced Sightings From IndexDB
  */
 async function getSightingFromIndexDB() {
     return new Promise(function(resolve, reject) {
@@ -143,7 +144,7 @@ async function getSightingFromIndexDB() {
 }
 
 /**
- * Get Unsync Comments From IndexDB
+ * Get Unsynced Comments From IndexDB
  */
 async function getCommentFromIndexDB() {
     return new Promise(function(resolve, reject) {
@@ -180,7 +181,7 @@ async function getCommentFromIndexDB() {
  * Update IndexDb once the Sightings are sync to MongoDb
  */
 function updateUnsync (data){
-    console.log("Sync Sightings to MongoDb Done,Updating IndexDb")
+    console.log("Sync Sightings to MongoDB Done, Updating IndexDb...")
     const request = indexedDB.open("birdWatching",2);
     request.onerror = function(event) {
         reject(event.target.error);
@@ -220,7 +221,7 @@ function updateUnsync (data){
 }
 
 /**
- * Update IndexDb once the Comments are sync to MongoDb
+ * Update IndexDB once the Comments are synced to MongoDB
  */
 function updateCommentUnsync (data){
     console.log("Sync Comments to MongoDb Done,Updating IndexDb")
@@ -249,7 +250,7 @@ function updateCommentUnsync (data){
  * Sync Sightings to MongoDb handler
  */
 async function syncDataToMongoDB(data) {
-    console.log("Syncing Sightings to MongoDb:",data)
+    console.log("Syncing Sightings to MongoDB:",data)
     var formData = new FormData();
     formData.append("data",JSON.stringify(data))
 
@@ -280,10 +281,10 @@ async function syncDataToMongoDB(data) {
 }
 
 /**
- * Sync Sightings to MongoDb handler
+ * Sync Sightings to MongoDB handler
  */
 async function syncCommentToMongoDB(data) {
-    console.log("Syncing Comments to MongoDb:",data)
+    console.log("Syncing Comments to MongoDB:",data)
     for (let i = 0; i < data.length; i++) {
         try {
             if (!isMongoDBObjectId(data[i].idBird)) {

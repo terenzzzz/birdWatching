@@ -1,6 +1,8 @@
+/* Import required modules and dependencies */
 var express = require('express');
 var router = express.Router();
 const { SparqlEndpointFetcher } = require('fetch-sparql-endpoint');
+const myFetcher = new SparqlEndpointFetcher();
 var bodyParser= require("body-parser");
 var sighting = require('../controller/sightings');
 var comment = require('../controller/comment');
@@ -9,9 +11,6 @@ var multer = require('multer');
 const Sighting = require("../models/sightings");
 const Comment = require("../models/comments");
 const fs = require('fs');
-
-const myFetcher = new SparqlEndpointFetcher();
-
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -28,11 +27,12 @@ var storage = multer.diskStorage({
         cb(null, filename);
     }
 });
+
 var upload = multer({ storage: storage });
 
 
 /**
- * OnBoarding page Router
+ * GET OnBoarding page
  */
 router.get('/', function(req, res, next) {
     res.render('onBoarding');
@@ -40,7 +40,7 @@ router.get('/', function(req, res, next) {
 
 
 /**
- * Index page Router
+ * GET Index page
  */
 router.get('/index', function(req, res, next) {
     index.getAll(function(err, sightings) {
@@ -52,21 +52,21 @@ router.get('/index', function(req, res, next) {
 });
 
 /**
- * Create page Router
+ * GET Create page
  */
 router.get('/create', function(req, res, next) {
     res.render('create');
 });
 
 /**
- * Create page Form Router
+ * POST form to create page
  */
 router.post('/create', upload.single('photo'), function(req, res) {
     sighting.create(req,res);
 });
 
 /**
- *  * Bird Offline page Router
+ * GET Bird Offline page
  */
 router.get('/bird', function(req, res, next) {
     console.log("Calling /bird")
@@ -75,7 +75,7 @@ router.get('/bird', function(req, res, next) {
 });
 
 /**
- * Bird Online page Router
+ * GET Bird Online page
  */
 router.get('/bird/:id', function(req, res) {
     console.log("calling /bird/:id")
@@ -87,6 +87,7 @@ router.get('/bird/:id', function(req, res) {
     }
 
     if (ObjectId.isValid(idBird)) {
+        // if a certain data is available in DBPedia
         var dbpedia_exist = true;
 
         try {
@@ -108,7 +109,7 @@ router.get('/bird/:id', function(req, res) {
                 if (identification.includes(' ')) {
                     identification = identification.replace(/\s/g, '_');
                 }
-
+                // Retrieve comments from database
                 Comment.find({ idBird: idBird }, function(err, comments) {
                     if (err) throw err;
 
@@ -119,38 +120,38 @@ router.get('/bird/:id', function(req, res) {
                     const endpointUrl = 'https://dbpedia.org/sparql';
 
                     // The SPARQL query to retrieve data for the given resource
-                    const sparqlQuery = `SELECT ?label ?abstract ?thumbnail WHERE { <${resource}> rdfs:label ?label .
-                  <${resource}> dbo:thumbnail ?thumbnail .
-                  <${resource}> dbo:abstract ?abstract .
-                  FILTER (langMatches(lang(?label),"en"))
-                  FILTER (langMatches(lang(?abstract),"en"))
-                }`;
+                    const sparqlQuery = `SELECT ?label ?abstract ?thumbnail 
+                                         WHERE { <${resource}> rdfs:label ?label .
+                                          <${resource}> dbo:thumbnail ?thumbnail .
+                                          <${resource}> dbo:abstract ?abstract .
+                                          FILTER (langMatches(lang(?label),"en"))
+                                          FILTER (langMatches(lang(?abstract),"en"))}`;
 
-                // Use SparqlEndpointFetcher() to retrieve the data
-                myFetcher.fetchBindings(endpointUrl, sparqlQuery)
-                    .then(bindingsStream => {
-                        let dataReceived = false; // Flag to track if data was received
-                        bindingsStream.on('data', (bindings) =>{
-                            dataReceived = true; // Set the flag to true when data is received
-                            let abstractValue = bindings.abstract.value;
-                            let thumbnailValue = bindings.thumbnail.value;
-                            let labelValue = bindings.label.value;
-                            // Render the bird view with the sighting and comments objects
-                            return res.render('bird', { sighting: sighting, comments: comments, label: labelValue,
-                                abstract: abstractValue, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:thumbnailValue});
+                    // Use SparqlEndpointFetcher() to retrieve the data
+                    myFetcher.fetchBindings(endpointUrl, sparqlQuery)
+                        .then(bindingsStream => {
+                            let dataReceived = false; // flag to track if data was received
+                            bindingsStream.on('data', (bindings) =>{
+                                dataReceived = true; // set the flag to true when data is received
+                                let abstractValue = bindings.abstract.value;
+                                let thumbnailValue = bindings.thumbnail.value;
+                                let labelValue = bindings.label.value;
+                                // Render the detailed bird sighting page
+                                return res.render('bird', { sighting: sighting, comments: comments, label: labelValue,
+                                    abstract: abstractValue, resource: resource, dbpedia_exist: dbpedia_exist, thumbnail:thumbnailValue});
+                            })
+
+                            bindingsStream.on('end', () => {
+                                if (!dataReceived) {
+                                    dbpedia_exist = false;
+                                    // Render the detailed bird sighting page
+                                    res.render('bird', {
+                                        sighting: sighting,
+                                        comments: comments,
+                                        dbpedia_exist: dbpedia_exist});
+                                }
+                            });
                         })
-
-                        bindingsStream.on('end', () => {
-                            if (!dataReceived) {
-                                dbpedia_exist = false;
-                                // Render the bird view with the sighting and comments objects
-                                res.render('bird', {
-                                    sighting: sighting,
-                                    comments: comments,
-                                    dbpedia_exist: dbpedia_exist});
-                            }
-                        });
-                    })
                 });
             });
         } catch (err) {
@@ -162,7 +163,7 @@ router.get('/bird/:id', function(req, res) {
 });
 
 /**
- * Sighting Comment Router
+ * POST comment to bird sighting
  */
 router.post('/bird/:id/', (req, res) => {
     const comment = new Comment({
@@ -173,7 +174,6 @@ router.post('/bird/:id/', (req, res) => {
     comment.save()
         .then(savedComment => {
             res.json(savedComment);
-           // console.log("Comment Saved")
         })
         .catch(err => {
             console.error(err);
@@ -183,7 +183,7 @@ router.post('/bird/:id/', (req, res) => {
 });
 
 /**
- * Sighting Edit Router
+ * POST identification update to bird sighting
  */
 router.post('/bird/:id/edit', function(req, res) {
     let birdId = req.params.id;

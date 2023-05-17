@@ -4,10 +4,12 @@ document.getElementById("dateTime").setAttribute("max", getToday());
 
 
 /**
- * Get Current Location and Init Map
+ * Get Current Location and Initialise Map
  */
 let marker = null;
+
 navigator.geolocation.getCurrentPosition(function(position) {
+    // Set the center to the user's current position
     let mapOptions = {
         center: [position.coords.latitude, position.coords.longitude],
         zoom: 10
@@ -15,7 +17,7 @@ navigator.geolocation.getCurrentPosition(function(position) {
     let map = new L.map('map', mapOptions);
     let layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
     map.addLayer(layer);
-
+    // Set the latitude and longitude values according to the clicked location on map
     map.on('click', (event)=> {
         if(marker !== null){
             map.removeLayer(marker);
@@ -45,8 +47,11 @@ function handleFormSubmit(event) {
     for (const [key, value] of formData.entries()) {
         sighting[key] = value;
     }
+    /* If online, post the form to `/create` endpoint then insert
+     the sighting into indexDB with corresponding id from MongoDB,
+     else if offline then insert sighting to indexDB with id = -1 */
     if (navigator.onLine) {
-        // 在线状态，发送请求
+
         fetch('/create', {
             method: 'POST',
             body: formData

@@ -52,7 +52,7 @@ function connectToRoom() {
 
 /**
  * it appends the given html text to the history div
- * @param text: teh text to append
+ * @param text: the text to append
  */
 function writeOnHistory(text) {
     console.log("writeOnHistory:",text)
@@ -93,7 +93,7 @@ function sendComment() {
         }, 3000);
     }else {
         if (navigator.onLine) {
-            // If Online, Send Http Request to Handle Comment into MongoDb
+            // If Online, Send Http Request to Handle Comment into MongoDB
             socket.emit('chat', roomNo, name, content);
             fetch(`/bird/${roomId}`, {
                 method: 'POST',
@@ -111,8 +111,8 @@ function sendComment() {
                     insertComment(JSON.stringify({nickname: nickname, content}), roomId);
                 })
         } else {
-            // If Offline, Call insertComment() to Handle Comment into IndexDb
-            console.log("Offline! Inserting comment into IndexDb");
+            // If Offline, Call insertComment() to Handle Comment into IndexDB
+            console.log("Offline! Inserting comment into IndexDB");
             insertComment(JSON.stringify({nickname: nickname, content}), roomId);
         }
         writeOnHistory('<b>' + "Me" + ':</b> ' + content);

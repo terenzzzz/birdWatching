@@ -9,13 +9,13 @@ window.onload = async function () {
     const idBird = searchParams.get('id');
 
     /**
-     * If the bird's id is IndexDb id, Get Sighting from IndexDb,
-     * Assign Sighting Detail to The Page
+     * When offline, if the bird's id can be retrieved from IndexDB , get sighting id from IndexDB
+     * and assign sighting details to the page
      */
-    if (!isMongoDBObjectId(idBird)){
+    if (!isMongoDBObjectId(idBird)){ // when offline cannot access MongoDB server
         try{
             const sighting = await getSightingById(idBird)
-            console.log("sightingggggg:",sighting)
+            console.log("sighting:",sighting)
 
             let thumbnailElement = document.getElementById("thumbnail")
             thumbnailElement.src = URL.createObjectURL(sighting.photo)
@@ -48,7 +48,9 @@ window.onload = async function () {
 };
 
 /**
- * Checking If the Id is Type of MongoDb ObjectId
+ * Check if the sighting ID has Type of MongoDb ObjectId
+ * @param str id string of sighting in database
+ * @returns {boolean}
  */
 function isMongoDBObjectId(str) {
     const pattern = /^[0-9a-fA-F]{24}$/;
@@ -56,6 +58,9 @@ function isMongoDBObjectId(str) {
 }
 
 
+/**
+ * Handling the presentation of information on sighting page according to click events
+ */
 
 const connectButton = document.getElementById('comment_btn');
 const sendButton = document.getElementById('chat_send');
@@ -136,8 +141,11 @@ const appendAlert = (message, type) => {
 }
 
 /**
- * Init Map when Offline
+ * View location offline
+ * @param latitude latitude value
+ * @param longitude longitude value
  */
+
 function initMapOffline(latitude,longitude) {
     let center ={lat: parseFloat(latitude),lng: parseFloat(longitude)}
     let map = new google.maps.Map(document.getElementById('map'), {
@@ -153,7 +161,7 @@ function initMapOffline(latitude,longitude) {
 }
 
 /**
- * Register Sync Event fot Service Worked
+ *  Registering sync event for the service worker
  */
 function registerSync() {
     new Promise(function (resolve, reject) {

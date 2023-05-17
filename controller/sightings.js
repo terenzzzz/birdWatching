@@ -1,7 +1,7 @@
 var Sighting = require('../models/sightings');
 
 /**
- * Handling Sighting create into MongoDb
+ * Handling insert a new sighting into MongoDb
  */
 exports.create = function (req, res) {
     var sighting = new Sighting({

@@ -1,22 +1,22 @@
-
 /**
- * Init IndexDb
+ * Initialise IndexDB
  */
 let requestIndexedDB = indexedDB.open("birdWatching",2)
 requestIndexedDB.addEventListener("error",handlerError)
 requestIndexedDB.addEventListener("upgradeneeded",upgradeStores)
 requestIndexedDB.addEventListener("success", handleSuccess)
 
-
 /**
- * Insert Sighting into IndexDb
+ * Insert Sighting into IndexDB
+ * @param data new sighting
+ * @param id sighting id
  */
 function insertSighting (data,id){
     console.log("insertSighting to indexDB")
     const birtWatchingIDB = requestIndexedDB.result
     const transaction = birtWatchingIDB.transaction(["sighting"],"readwrite")
     const sightingStore = transaction.objectStore("sighting")
-
+    // set id to stored in `Value` of IndexDB
     data._id = id
     console.log(data)
 
@@ -33,7 +33,9 @@ function insertSighting (data,id){
 }
 
 /**
- * Insert Comment into IndexDb
+ * Insert new comment of a sighting into IndexDB
+ * @param data comment
+ * @param id sighting id
  */
 function insertComment (data,id){
     console.log("insertComment",insertComment)
@@ -60,39 +62,43 @@ function insertComment (data,id){
 }
 
 /**
- * Get all Unsync Sightings From IndexDb
+ * Get all unsynced list of sighting (created when offline) from IndexDB
  */
 function getSighting() {
     return new Promise((resolve, reject) => {
         const birtWatchingIDB = requestIndexedDB.result;
         const transaction = birtWatchingIDB.transaction(["sighting"], "readwrite");
         const sightingStore = transaction.objectStore("sighting");
+        // retrieve a cursor that allows iterating over the objects in the object store
         const cursorRequest = sightingStore.openCursor();
-        const result = []; // 存储查询结果的数组
+        const result = []; // store result query
 
         cursorRequest.onsuccess = function(event) {
             const cursor = event.target.result;
             if (cursor) {
                 const data = cursor.value;
+                // add sighting created offline to result list
                 if (data._id == -1){
-                    result.push(data); // 将对象数据添加到数组中
+                    result.push(data);
                 }
                 cursor.continue();
             } else {
-                // 遍历完所有对象，使用 Promise 的 resolve 返回结果
+                // once all objects have been iterated through, use Promise's resolve to return the list of
+                // unsynced sightings
                 resolve(result);
             }
         };
 
         cursorRequest.onerror = function(event) {
-            // 处理错误，使用 Promise 的 reject 返回错误信息
+            // handle error, use Promise's reject to return an error message
             reject(event.target.error);
         };
     });
 }
 
 /**
- * Get Specific Sighting By Sighting's IndexDb id
+ * Get specific sighting by id stored in IndexDB
+ * @param id sighting id
  */
 function getSightingById(id) {
     let idBird = parseInt(id)
@@ -114,7 +120,7 @@ function getSightingById(id) {
 }
 
 /**
- * Get All Comments From IndexDb
+ * Get All Comments From IndexDB
  */
 function getComment() {
     return new Promise((resolve, reject) => {
@@ -122,7 +128,7 @@ function getComment() {
         const transaction = birtWatchingIDB.transaction(["comment"], "readwrite");
         const commentStore = transaction.objectStore("comment");
         const cursorRequest = commentStore.openCursor();
-        const result = []; // 存储查询结果的数组
+        const result = [];
 
         cursorRequest.onsuccess = function(event) {
             const cursor = event.target.result;
@@ -131,13 +137,12 @@ function getComment() {
                 result.push(data)
                 cursor.continue();
             } else {
-                // 遍历完所有对象，使用 Promise 的 resolve 返回结果
+
                 resolve(result);
             }
         };
 
         cursorRequest.onerror = function(event) {
-            // 处理错误，使用 Promise 的 reject 返回错误信息
             reject(event.target.error);
         };
     });
@@ -152,7 +157,7 @@ function handlerError(err){
 }
 
 /**
- * Handling IndexDb Upgrade Stores
+ * Handling IndexDB Upgrade Stores
  */
 function upgradeStores(ev){
     const db = ev.target.result
@@ -162,7 +167,7 @@ function upgradeStores(ev){
 }
 
 /**
- * Handling IndexDb Success
+ * Handling IndexDB Success
  */
 function handleSuccess(ev){
     // init

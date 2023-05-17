@@ -1,3 +1,6 @@
+/**
+ * Get sighting list from index page
+ */
 let allSightings = []
 window.onload = async function () {
     console.log("index.onload")
@@ -13,6 +16,7 @@ window.onload = async function () {
 };
 
 (function () {
+    /* Register service worker */
     console.log("init");
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register('/sw.js', { scope: "./" })
@@ -24,6 +28,10 @@ window.onload = async function () {
                 console.error('Service worker registration failed ', error);
             });
     }
+
+    /**
+     * Check for update according to service worker's state
+     */
     function checkForUpdate(registration) {
         console.log("checkForUpdate");
         registration.addEventListener("updatefound", function() {
@@ -92,7 +100,7 @@ function updateSightings(sightings) {
 }
 
 /**
- * Handling Which url Should redirect when click on the Sighting in Index page
+ * Handling which URL to redirect when click on a specific sighting in index page when offline
  */
 async function toDetailHandler(id) {
     let isMongo = isMongoDBObjectId(id)
@@ -155,11 +163,15 @@ async function sortByIdentification() {
     }, 2000);
     var unknownList = []
     var elseList = []
+    var uncertainList = []
 
     allSightings.forEach(st => {
         console.log(st.nickName)
-        if (st.identification == "Unknown" || st.identification.includes('(Uncertain)')) {
+        if (st.identification == "Unknown") {
             unknownList.push(st)
+        }
+        else if (st.identification.includes('(Uncertain)')) {
+            uncertainList.push(st)
         } else {
             elseList.push(st)
         }
@@ -175,7 +187,8 @@ async function sortByIdentification() {
         let dateB = new Date(b.dateTime.split('-').reverse().join('-'));
         return dateB - dateA;
     });
-    updateSightings(sortedElse.concat(sortedUnknown));
+    // sorted in order: identified, uncertain, unknown
+    updateSightings(sortedElse.concat(uncertainList, sortedUnknown));
 }
 
 /**
@@ -202,7 +215,7 @@ function sortByLocation(){
                 st.distance = distanceInKm
             });
 
-            // Sorted Sightings Object
+            // Sorted Sightings Object based on distance
             var sorted = allSightings.sort(function(a, b) {
                 return a.distance - b.distance;
             })

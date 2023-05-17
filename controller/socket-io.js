@@ -1,4 +1,7 @@
-
+/**
+ * handle socket connections and enable
+ * real-time communication between clients
+ */
 exports.init = function(io) {
   io.sockets.on('connection', function (socket) {
     try {
@@ -12,6 +15,9 @@ exports.init = function(io) {
 
       });
 
+      /**
+       * send chat messages
+       */
       socket.on('chat', function (room, userId, chatText) {
         io.sockets.to(room).emit('chat', room, userId, chatText);
         console.log(userId + " sent this message " + chatText)
