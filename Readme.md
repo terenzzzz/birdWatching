@@ -6,9 +6,9 @@ This is a  “Bird Watching” progressive web application that provides users (
 watchers) with means to record and view Bird sightings and also to help with identification.
 
 ## Tech
-| Tech | Stack |
+|  Category | Technology |
 | ------ | ------ |
-| Frontend | ejs, Bootstrap |
+| Frontend | EJS, Bootstrap |
 | Backend | MongoDB, IndexedDB |
 | Server | Node.js, Express.js, Socket.IO|
 
@@ -22,7 +22,7 @@ watchers) with means to record and view Bird sightings and also to help with ide
 
 ## Features
 - Progressive and Responsive
-- Supports online and offline interaction
+- Supports online and offline interaction and synchronisation
 - Real-time communication between users (Chat)
 - Link to knowledge graph from DBPedia
 - Create/View Sightings
