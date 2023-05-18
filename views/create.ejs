@@ -17,6 +17,12 @@
       window.location.href = '/';
       alert("Please Field Your Nick Name.")
     }
+    function initMap() {
+      let map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 9,
+        draggable: true
+      });
+    }
   </script>
 </head>
 <body class="bg-light bg-gradient">

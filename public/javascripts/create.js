@@ -27,15 +27,6 @@ document.getElementById("dateTime").setAttribute("max", getToday());
 //         document.getElementById('longitude').value = event.latlng.lng;
 //     })
 // })
-function initMap() {
-    let map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 9,
-        draggable: true
-    });
-}
-
-
-
 let marker = null;
 navigator.geolocation.getCurrentPosition(function(position) {
     let center ={lat: position.coords.latitude, lng: position.coords.longitude}
