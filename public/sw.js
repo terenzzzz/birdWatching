@@ -8,6 +8,7 @@ const filesToCache = [
     "javascripts/create.js",
     "javascripts/index.js",
     "manifest.json",
+    "img/icon.png",
     "img/onBoarding.png",
     "/create",
     "/index",
