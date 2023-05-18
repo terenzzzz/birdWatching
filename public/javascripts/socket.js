@@ -118,8 +118,8 @@ function sendComment() {
             // If Offline, Call insertComment() to Handle Comment into IndexDB
             console.log("Offline! Inserting comment into IndexDB");
             insertComment(JSON.stringify({nickname: nickname, content}), roomId);
+            writeOnHistory('<b>' + "Me" + ':</b> ' + content);
         }
-        writeOnHistory('<b>' + "Me" + ':</b> ' + content);
     }
 
 }
