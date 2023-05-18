@@ -2,13 +2,17 @@ let name = null;
 let roomNo = null;
 let socket = io();
 
+// Init socket
+init(socket);
+
 
 /**
  * called by <body onload>
  * it initialises the interface and the expected socket messages
  * plus the associated actions
  */
-function init() {
+function init(socket) {
+    console.log("socket init()")
     // it sets up the interface so that userId and room are selected
     document.getElementById('initial_form').style.display = 'block';
     document.getElementById('chat_interface').style.display = 'none';
