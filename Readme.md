@@ -11,6 +11,7 @@ watchers) with means to record and view Bird sightings and also to help with ide
 | Frontend | EJS, Bootstrap |
 | Backend | MongoDB, IndexedDB |
 | Server | Node.js, Express.js, Socket.IO|
+| Caching | Network first then Cache|
 
 
 ## Installation
