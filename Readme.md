@@ -41,6 +41,10 @@ watchers) with means to record and view Bird sightings and also to help with ide
 ## Instructions
 
 - User needs to enter their nickname before starting to use the app on `/`
+  |||
+  |--|--|
+  | <img src=".\ReadmeSource\onBoarding_phone.png" width="auto" height="500px"> | <img src=".\ReadmeSource\onBoarding.png" width="auto" height="500px"> |
+
 <figure class="sencond">
     <img src=".\ReadmeSource\onBoarding_phone.png" width="auto" height="500px"><img src=".\ReadmeSource\onBoarding.png" width="auto" height="500px">
 </figure>
