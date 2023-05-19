@@ -145,19 +145,10 @@ const appendAlert = (message, type) => {
  * @param latitude latitude value
  * @param longitude longitude value
  */
-
 function initMapOffline(latitude,longitude) {
-    let center ={lat: parseFloat(latitude),lng: parseFloat(longitude)}
-    let map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 9,
-        center: center,
-        draggable: true
-    });
-    var marker = new google.maps.Marker({
-        position: center,
-        map: map,
-        title: 'Center'
-    });
+    let map = L.map('map').setView([latitude, longitude], 10);
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    let marker = L.marker([latitude, longitude]).addTo(map);
 }
 
 /**

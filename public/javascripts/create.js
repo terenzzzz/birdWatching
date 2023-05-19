@@ -6,49 +6,28 @@ document.getElementById("dateTime").setAttribute("max", getToday());
 /**
  * Get Current Location and Initialise Map
  */
-// let marker = null;
-
-// navigator.geolocation.getCurrentPosition(function(position) {
-//     // Set the center to the user's current position
-//     let mapOptions = {
-//         center: [position.coords.latitude, position.coords.longitude],
-//         zoom: 10
-//     }
-//     let map = new L.map('map', mapOptions);
-//     let layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-//     map.addLayer(layer);
-//     // Set the latitude and longitude values according to the clicked location on map
-//     map.on('click', (event)=> {
-//         if(marker !== null){
-//             map.removeLayer(marker);
-//         }
-//         marker = L.marker([event.latlng.lat , event.latlng.lng]).addTo(map);
-//         document.getElementById('latitude').value = event.latlng.lat;
-//         document.getElementById('longitude').value = event.latlng.lng;
-//     })
-// })
 let marker = null;
 navigator.geolocation.getCurrentPosition(function(position) {
-    let center ={lat: position.coords.latitude, lng: position.coords.longitude}
-    let map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 10,
-        center: center,
-        draggable: true
-    });
-    google.maps.event.addListener(map, 'click', function(event) {
+    // Set the center to the user's current position
+    let mapOptions = {
+        center: [position.coords.latitude, position.coords.longitude],
+        zoom: 10
+    }
+    let map = new L.map('map', mapOptions);
+    let layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+    map.addLayer(layer);
+    // Set the latitude and longitude values according to the clicked location on map
+    map.on('click', (event)=> {
         if(marker !== null){
-            marker.setMap(null);
+            map.removeLayer(marker);
         }
-
-         marker = new google.maps.Marker({
-            position: event.latLng,
-            map: map
-        });
-        document.getElementById('latitude').value = event.latLng.lat();
-        document.getElementById('longitude').value = event.latLng.lng();
-        console.log('Clicked Location:', document.getElementById('latitude').value, document.getElementById('longitude').value);
-    });
+        marker = L.marker([event.latlng.lat , event.latlng.lng]).addTo(map);
+        document.getElementById('latitude').value = event.latlng.lat;
+        document.getElementById('longitude').value = event.latlng.lng;
+        console.log("Selected Location: ", event.latlng.lat,event.latlng.lng)
+    })
 })
+
 
 
 const form = document.getElementById('addForm');
